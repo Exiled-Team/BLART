@@ -30,6 +30,7 @@ public class CatgirlShit
 
     public static Task<string> Uwu(string original)
     {
+        original = original.Replace("<@", "<");
         string[] words = original.Split(' ');
 
         StringBuilder builder = new();
