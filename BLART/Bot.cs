@@ -63,6 +63,9 @@ public class Bot
         Client.MessageReceived += PingTriggers.HandleMessage;
         Client.MessageReceived += SpamPrevention.OnMessageReceived;
         
+        Log.Debug(nameof(Init), "Setting up channel renting..");
+        Client.UserVoiceStateUpdated += ChannelRenting.OnVoiceStateChanged;
+
         Log.Debug(nameof(Init), "Setting up raid protection..");
         Client.UserJoined += RaidProtection.OnUserJoined;
         
