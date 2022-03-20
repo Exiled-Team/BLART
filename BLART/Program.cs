@@ -2,7 +2,7 @@
 
 using Newtonsoft.Json;
 
-public class Program
+public static class Program
 {
     private static Config? _config;
     private static string KCfgFile = "Blart.json";
