@@ -10,7 +10,7 @@ public class Program
     public static string DatabaseFile { get; } = Path.Combine(Environment.CurrentDirectory, "Blart.db");
     public static Config Config => _config ??= GetConfig();
     public static Random Rng { get; } = new();
-    public static void Main(string[] args) => new Bot();
+    public static void Main() => new Bot();
 
     private static Config GetConfig()
     {
