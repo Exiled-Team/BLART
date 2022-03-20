@@ -18,14 +18,14 @@ public class Logging
     {
         if ((await before.GetOrDownloadAsync()).Content != after.Content)
             await SendLogMessage("Message Edited",
-                $"Author: {(await before.GetOrDownloadAsync()).Author.Mention}\nOriginal: {(await before.GetOrDownloadAsync()).Content}\nEdited: {after.Content}\nChannel: {channel.Name}",
+                $"Author: {(await before.GetOrDownloadAsync()).Author.Mention}\nOriginal: {(await before.GetOrDownloadAsync()).Content}\nEdited: {after.Content}\nChannel: <#{channel.Id}>",
                 Color.Orange);
     }
 
     public static async Task OnMessageDeleted(
         Cacheable<IMessage, ulong> message,
         Cacheable<IMessageChannel, ulong> channel) =>
-        await SendLogMessage("Message Deleted", $"Author: {(await message.GetOrDownloadAsync()).Author.Mention}\nMessage: {(await message.GetOrDownloadAsync()).Content}\nChannel: {(await channel.GetOrDownloadAsync()).Name}",
+        await SendLogMessage("Message Deleted", $"Author: {(await message.GetOrDownloadAsync()).Author.Mention}\nMessage: {(await message.GetOrDownloadAsync()).Content}\nChannel: <#{(await channel.GetOrDownloadAsync()).Id}>",
             Color.DarkOrange);
 
     public static async Task OnUserJoined(SocketGuildUser arg) =>
