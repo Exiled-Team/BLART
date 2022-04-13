@@ -15,17 +15,13 @@ public class MuteCommand : ModuleBase<SocketCommandContext>
         [Summary("The time duration")] string duration,
         [Summary("The reason for the mute.")] [Remainder] string reason)
     {
-        Log.Debug(nameof(Mute), "Muting.");
         if (!CommandHandler.CanRunStaffCmd(Context.Message.Author))
         {
-            Log.Debug(nameof(Mute), "Can't run staff commands.");
             await ReplyAsync(ErrorHandlingService.GetErrorMessage(ErrorCodes.PermissionDenied));
             return;
         }
-
-        Log.Debug(nameof(Mute), "Can run commands");
+        
         TimeSpan span = TimeParsing.ParseDuration(duration);
-        Log.Debug(nameof(Mute), span);
         if (span.Ticks <= 0)
         {
             Log.Error(nameof(Mute), $"{duration} failed to parse.");
@@ -33,10 +29,14 @@ public class MuteCommand : ModuleBase<SocketCommandContext>
             return;
         }
 
-        Log.Debug(nameof(Mute), "stuff should happen.");
+        if (user == Context.Message.Author)
+        {
+            await ReplyAsync("No, don't do it, you have to much to live for!");
+            return;
+        }
+        
         await Logging.SendLogMessage("User muted", $"{Context.Message.Author.Username} muted {user.Username} for {span} for {reason}.", Color.Orange);
         await ((IGuildUser)user).SetTimeOutAsync(span);
         await ReplyAsync($"User muted for {span}. Reason: {reason}.");
-        Log.Debug(nameof(Mute), "stuff happened.");
     }
 }
