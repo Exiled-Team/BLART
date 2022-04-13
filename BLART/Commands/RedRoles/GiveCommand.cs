@@ -28,5 +28,6 @@ public class GiveCommand : ModuleBase<SocketCommandContext>
 
         await target.AddRoleAsync(role);
         DatabaseHandler.AddEntry(target.Id, reason, DatabaseType.RedRole, Context.Message.Author.Id);
+        await Context.Message.AddReactionAsync(Emote.Parse(Bot.Instance.ReplyEmote));
     }
 }

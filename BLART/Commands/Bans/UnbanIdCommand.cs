@@ -21,7 +21,7 @@ public class UnbanIdCommand : ModuleBase<SocketCommandContext>
         await Context.Guild.RemoveBanAsync(id);
         PunishmentInfo? info = DatabaseHandler.GetInfoById(id, DatabaseType.Ban);
         DatabaseHandler.RemoveEntry(id, DatabaseType.Ban);
-        await ReplyAsync($"Ban for {id} has been removed.");
+        await Context.Message.AddReactionAsync(Emote.Parse(Bot.Instance.ReplyEmote));
         await Logging.SendLogMessage("Ban removed",
             $"{Context.Message.Author.Username} removed ban for user {id} \n" +
             $"{(info != null ? $"Banned user: {Context.Guild.GetUsername(info.UserId)}\nIssued by: {Context.Guild.GetUsername(info.StaffId)} \nReason: {info.Reason}\nIssued on: {info.Issued}" : "Info unavailable.")}",

@@ -14,15 +14,16 @@ public class Bot
 
     public static Bot Instance { get; private set; } = null!;
 
-    public SocketGuild Guild => guild ??= Client.Guilds.FirstOrDefault()!;
-    private DiscordSocketClient Client => client ??= new DiscordSocketClient(new DiscordSocketConfig { AlwaysDownloadUsers = true, MessageCacheSize = 1000 });
+    public SocketGuild Guild => guild ??= Client.Guilds.FirstOrDefault(g => g.Id == 656673194693885975)!;
+    public string ReplyEmote => "<:yesexiled:813850607294218251>";
+    private DiscordSocketClient Client => client ??= new DiscordSocketClient(new DiscordSocketConfig { AlwaysDownloadUsers = true, MessageCacheSize = 10000, });
     public CommandService CommandService { get; private set; } = null!;
     public CommandHandler CommandHandler { get; private set; } = null!;
 
-    public Bot()
+    public Bot(string[] args)
     {
         Instance = this;
-        Init().GetAwaiter().GetResult();
+        Init(args).GetAwaiter().GetResult();
     }
 
     ~Bot()
@@ -31,7 +32,7 @@ public class Bot
         Client.LogoutAsync();
     }
 
-    private async Task Init()
+    private async Task Init(string[] args)
     {
         try
         {
@@ -44,7 +45,7 @@ public class Bot
         }
         
         Log.Debug(nameof(Init), "Initializing Database..");
-        DatabaseHandler.Init();
+        DatabaseHandler.Init(args.Contains("--updatetables"));
         
         Log.Debug(nameof(Init), "Initializing Commands..");
         CommandService = new CommandService();

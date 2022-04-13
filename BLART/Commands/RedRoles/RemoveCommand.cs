@@ -28,5 +28,6 @@ public class RemoveCommand : ModuleBase<SocketCommandContext>
 
         await target.RemoveRoleAsync(role);
         DatabaseHandler.RemoveEntry(target.Id, DatabaseType.RedRole);
+        await Context.Message.AddReactionAsync(Emote.Parse(Bot.Instance.ReplyEmote));
     }
 }

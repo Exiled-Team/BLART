@@ -34,6 +34,6 @@ public class WarnCommand : ModuleBase<SocketCommandContext>
         DatabaseHandler.AddEntry(user.Id, reason, DatabaseType.Warn, Context.Message.Author.Id);
         await Logging.SendLogMessage("Warning issued",
             $"{Context.Message.Author.Username} warned {user.Username} for {reason}.", Color.Red);
-        await ReplyAsync($"User warned for {reason}.");
+        await Context.Message.AddReactionAsync(Emote.Parse(Bot.Instance.ReplyEmote));
     }
 }

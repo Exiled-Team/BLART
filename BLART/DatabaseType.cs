@@ -6,4 +6,5 @@ public enum DatabaseType
     RedRole,
     Warn,
     Ban,
+    BugReport,
 }

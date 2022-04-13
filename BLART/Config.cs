@@ -13,6 +13,7 @@ public class Config
     public ulong LogsId { get; set; }
     public bool Debug { get; set; }
     public ulong RedRoleId { get; set; }
+    public ulong BugReportId { get; set; }
 
     public static readonly Config Default = new Config
     {
@@ -26,5 +27,6 @@ public class Config
         LogsId = 0,
         Debug = false,
         RedRoleId = 0,
+        BugReportId = 0,
     };
 }

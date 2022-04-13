@@ -30,7 +30,7 @@ public class BanCommand : ModuleBase<SocketCommandContext>
         }
 
         await ((IGuildUser)user).BanAsync(7, reason);
-        await ReplyAsync("User banned.");
+        await Context.Message.AddReactionAsync(Emote.Parse(Bot.Instance.ReplyEmote));
         await Logging.SendLogMessage("User banned",
             $"{Context.Message.Author.Username} has banned {user.Username} for {reason}.", Color.Red);
         DatabaseHandler.AddEntry(user.Id, reason, DatabaseType.Ban, Context.Message.Author.Id);

@@ -41,5 +41,5 @@ public class CommandHandler
 
     public static bool CanRunStaffCmd(SocketUser user) => CanRunStaffCmd((IGuildUser)user);
 
-    public static bool CanRunStaffCmd(IGuildUser user) => user.RoleIds.Any(roleId => roleId == Program.Config.DiscStaffId) || user.GuildPermissions.Administrator;
+    public static bool CanRunStaffCmd(IGuildUser user) => user.RoleIds.Any(roleId => roleId == Program.Config.DiscStaffId) || user.GuildPermissions.Administrator || user.GuildPermissions.ManageChannels;
 }

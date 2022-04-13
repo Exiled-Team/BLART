@@ -22,5 +22,6 @@ public class BanIdCommand : ModuleBase<SocketCommandContext>
         await Logging.SendLogMessage("User banned",
             $"{Context.Message.Author.Username} has banned {user} for {reason}.", Color.Red);
         DatabaseHandler.AddEntry(user, reason, DatabaseType.Ban, Context.Message.Author.Id);
+        await Context.Message.AddReactionAsync(Emote.Parse(Bot.Instance.ReplyEmote));
     }
 }

@@ -20,7 +20,7 @@ public class UnwarnCommand : ModuleBase<SocketCommandContext>
 
         PunishmentInfo? info = DatabaseHandler.GetInfoById(id, DatabaseType.Warn);
         DatabaseHandler.RemoveEntry(id, DatabaseType.Warn);
-        await ReplyAsync($"Warning {id} has been removed.");
+        await Context.Message.AddReactionAsync(Emote.Parse(Bot.Instance.ReplyEmote));
         await Logging.SendLogMessage("Warning removed",
             $"{Context.Message.Author.Username} removed warning {id} \n" +
             $"{(info != null ? $"Warned user: {Context.Guild.GetUsername(info.UserId)}\nIssued by: {Context.Guild.GetUsername(info.StaffId)} \nReason: {info.Reason}\nIssued on: {info.Issued}" : "Info unavailable.")}",

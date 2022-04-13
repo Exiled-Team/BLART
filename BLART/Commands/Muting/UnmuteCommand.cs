@@ -20,6 +20,6 @@ public class UnmuteCommand : ModuleBase<SocketCommandContext>
 
         await Logging.SendLogMessage("User unmuted", $"{Context.Message.Author.Username} unmuted {user.Username}.", Color.Orange);
         await ((IGuildUser)user).RemoveTimeOutAsync();
-        await ReplyAsync("User unmuted.");
+        await Context.Message.AddReactionAsync(Emote.Parse(Bot.Instance.ReplyEmote));
     }
 }

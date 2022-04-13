@@ -3,15 +3,16 @@ namespace BLART.Services;
 using System.Globalization;
 using BLART.Objects;
 using Microsoft.Data.Sqlite;
+using Modules;
 
 public class DatabaseHandler
 {
     private static string _connectionString = $"Data Source={Program.DatabaseFile}";
 
-    public static void Init()
+    public static void Init(bool updateTables = false)
     {
         Log.Info(nameof(Init), $"Initializing database at {_connectionString}");
-        if (!File.Exists(Program.DatabaseFile))
+        if (!File.Exists(Program.DatabaseFile) || updateTables)
         {
             Log.Info(nameof(Init), "Database not found, creating..");
             using SqliteConnection conn = new(_connectionString);
@@ -21,7 +22,7 @@ public class DatabaseHandler
             {
                 Log.Info(nameof(Init), "Creating ping table..");
                 cmd.CommandText =
-                    "CREATE TABLE Pings(Id INTEGER PRIMARY KEY AUTOINCREMENT, UserId TEXT, Message TEXT)";
+                    "CREATE TABLE IF NOT EXISTS Pings(Id INTEGER PRIMARY KEY AUTOINCREMENT, UserId TEXT, Message TEXT)";
                 cmd.ExecuteNonQuery();
             }
 
@@ -29,7 +30,7 @@ public class DatabaseHandler
             {
                 Log.Info(nameof(Init), "Creating warning table..");
                 cmd.CommandText =
-                    "CREATE TABLE Warns(Id INTEGER PRIMARY KEY AUTOINCREMENT, UserId TEXT, Reason TEXT, StaffId TEXT, Issued TEXT)";
+                    "CREATE TABLE IF NOT EXISTS Warns(Id INTEGER PRIMARY KEY AUTOINCREMENT, UserId TEXT, Reason TEXT, StaffId TEXT, Issued TEXT)";
                 cmd.ExecuteNonQuery();
             }
 
@@ -37,7 +38,7 @@ public class DatabaseHandler
             {
                 Log.Info(nameof(Init), "Creating ban table..");
                 cmd.CommandText =
-                    "CREATE TABLE Bans(Id INTEGER PRIMARY KEY AUTOINCREMENT, UserId TEXT, Reason TEXT, StaffId TEXT, Issued TEXT)";
+                    "CREATE TABLE IF NOT EXISTS Bans(Id INTEGER PRIMARY KEY AUTOINCREMENT, UserId TEXT, Reason TEXT, StaffId TEXT, Issued TEXT)";
                 cmd.ExecuteNonQuery();
             }
 
@@ -45,10 +46,20 @@ public class DatabaseHandler
             {
                 Log.Info(nameof(Init), "Creating red role table..");
                 cmd.CommandText =
-                    "CREATE TABLE RedRoles(Id INTEGER PRIMARY KEY AUTOINCREMENT, UserId TEXT, Reason TEXT, StaffId TEXT, Issued TEXT)";
+                    "CREATE TABLE IF NOT EXISTS RedRoles(Id INTEGER PRIMARY KEY AUTOINCREMENT, UserId TEXT, Reason TEXT, StaffId TEXT, Issued TEXT)";
+                cmd.ExecuteNonQuery();
+            }
+
+            using (SqliteCommand cmd = conn.CreateCommand())
+            {
+                Log.Info(nameof(Init), "Creating bug report table..");
+                cmd.CommandText =
+                    "CREATE TABLE IF NOT EXISTS BugReports(Id INTEGER PRIMARY KEY AUTOINCREMENT, messageId TEXT, threadId TEXT)";
                 cmd.ExecuteNonQuery();
             }
         }
+
+        BugReporting.LoadDatabaseEntries();
     }
 
     public static void AddEntry(ulong id, string description, DatabaseType type, ulong staffId = 0)
@@ -64,6 +75,7 @@ public class DatabaseHandler
                 DatabaseType.Ban => "INSERT INTO Bans(UserId, Reason, StaffId, Issued) VALUES(@id, @string, @staff, @issued)",
                 DatabaseType.RedRole => "INSERT INTO RedRoles(UserId, Reason, StaffId, Issued) VALUES(@id, @string, @staff, @issued)",
                 DatabaseType.Warn => "INSERT INTO Warns(UserId, Reason, StaffId, Issued) VALUES(@id, @string, @staff, @issued)",
+                DatabaseType.BugReport => "INSERT INTO BugReports(messageId, threadId) VALUES(@id, @string)",
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
             
@@ -95,6 +107,7 @@ public class DatabaseHandler
                 DatabaseType.Ban => "DELETE FROM Bans WHERE Id=@id",
                 DatabaseType.Warn => "DELETE FROM Warns WHERE Id=@id",
                 DatabaseType.RedRole => "DELETE FROM RedRoles WHERE Id=@id",
+                DatabaseType.BugReport => "DELETE FROM BugReports WHERE Id=@id",
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 
@@ -118,6 +131,7 @@ public class DatabaseHandler
                 DatabaseType.RedRole => "DELETE FROM RedRoles WHERE UserId=@id",
                 DatabaseType.Warn => "DELETE FROM Warns WHERE UserId=@id",
                 DatabaseType.Ban => "DELETE FROM Bans WHERE UserId=@id",
+                DatabaseType.BugReport => "DELETE FROM BugReports WHERE messageId=@id OR threadId=@id",
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
             
@@ -235,6 +249,32 @@ public class DatabaseHandler
         return null;
     }
 
+    public static ulong GetMessageId(ulong threadId)
+    {
+        ulong messageId = 0;
+        using (SqliteConnection conn = new(_connectionString))
+        {
+            conn.Open();
+            using (SqliteCommand cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT * FROM BugReports WHERE threadId=@id";
+                cmd.Parameters.AddWithValue("@id", threadId);
+
+                using (SqliteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (ulong.TryParse(reader.GetString(1), out messageId))
+                            break;
+                    }
+                }
+            }
+
+            conn.Close();
+        }
+
+        return messageId;
+    }
     public static string GetPingTrigger(ulong userId)
     {
         string message = string.Empty;

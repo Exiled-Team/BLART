@@ -28,6 +28,6 @@ public class CleanupCommand : ModuleBase<SocketCommandContext>
             messages = await channel.GetMessagesAsync(amount).FlattenAsync();
 
         await channel.DeleteMessagesAsync(messages);
-        await ReplyAsync("Messages deleted.");
+        await Context.Message.DeleteAsync();
     }
 }
