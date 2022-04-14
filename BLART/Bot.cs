@@ -63,6 +63,7 @@ public class Bot
         Log.Debug(nameof(Init), "Setting up message handlers..");
         Client.MessageReceived += PingTriggers.HandleMessage;
         Client.MessageReceived += SpamPrevention.OnMessageReceived;
+        Client.MessageUpdated += SpamPrevention.OnMessageUpdated;
         
         Log.Debug(nameof(Init), "Setting up channel renting..");
         Client.UserVoiceStateUpdated += ChannelRenting.OnVoiceStateChanged;

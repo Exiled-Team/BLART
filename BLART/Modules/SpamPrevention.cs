@@ -1,6 +1,7 @@
 namespace BLART.Modules;
 
 using System.Text.RegularExpressions;
+using Commands;
 using Discord;
 using Discord.WebSocket;
 
@@ -9,14 +10,19 @@ public class SpamPrevention
     private static Dictionary<SocketUser, (DateTime, int)> SpamTracker { get; } = new();
     private static readonly Regex Regex = new(@"^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-    public static async Task OnMessageReceived(SocketMessage message)
+    public static Task OnMessageReceived(SocketMessage arg) => OnMessageReceived(arg, false);
+
+    public static async Task OnMessageReceived(SocketMessage message, bool skipSpam)
     {
-        if (Check(message.Author) || Check(message))
+        bool spam = Check(message.Author, skipSpam);
+        bool link = Check(message);
+        
+        if (spam || link)
         {
-            await Logging.SendLogMessage($"User auto-{(RaidProtection.Check(message.Author) ? "banned" : "muted")}", $"{message.Author.Username} has been auto-moderated for spamming.", Color.Red);
+            await Logging.SendLogMessage($"User auto-{(RaidProtection.Check(message.Author) ? "banned" : "muted")}", $"{message.Author.Username} has been auto-moderated for {(spam ? "spamming" : "linking")}.", Color.Red);
             
             if (RaidProtection.Check(message.Author))
-                await ((IGuildUser)message.Author).BanAsync(7, "Raid protection triggered (spamming)");
+                await ((IGuildUser)message.Author).BanAsync(7, "Raid protection triggered (spamming/linking)");
             else
             {
                 await ((IGuildUser)message.Author).SetTimeOutAsync(TimeSpan.FromHours(2));
@@ -43,9 +49,11 @@ public class SpamPrevention
         }
     }
 
-    private static bool Check(SocketUser user)
+    public static async Task OnMessageUpdated(Cacheable<IMessage, ulong> orig, SocketMessage edited, ISocketMessageChannel channel) => await OnMessageReceived(edited);
+
+    private static bool Check(SocketUser user, bool skipSpam)
     {
-        if (user.IsBot)
+        if (user.IsBot || CommandHandler.CanRunStaffCmd(user) || skipSpam)
             return false;
         
         if (!SpamTracker.ContainsKey(user))
@@ -63,7 +71,7 @@ public class SpamPrevention
         return SpamTracker[user].Item2 > Program.Config.SpamLimit;
     }
 
-    private static bool Check(SocketMessage message) => FrequencyCount("<@", message.Content) > 4 || message.Content.Split(' ').Any(s => Regex.IsMatch(s) && IsBlockedContent(s));
+    private static bool Check(SocketMessage message) => !CommandHandler.CanRunStaffCmd(message.Author) && (FrequencyCount("<@", message.Content) > 4 || message.Content.Split(' ').Any(s => Regex.IsMatch(s) && IsBlockedContent(s)));
 
     private static bool IsBlockedContent(string url)
     {
