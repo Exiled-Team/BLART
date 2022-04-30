@@ -19,7 +19,9 @@ public class BugReporting
     {
         foreach (SocketThreadChannel thread in BugReportChannel.Threads)
         {
+            Log.Debug(nameof(LoadDatabaseEntries), $"Getting message ID for thread {thread.Id}");
             ulong messageId = DatabaseHandler.GetMessageId(thread.Id);
+            Log.Debug(nameof(LoadDatabaseEntries), $"Messaged ID for {thread.Id} found: {messageId}");
                 if (messageId != 0)
                     OpenThreads.Add(messageId, thread);
         }
