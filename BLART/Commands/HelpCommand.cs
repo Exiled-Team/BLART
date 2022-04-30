@@ -4,11 +4,14 @@ using System.Text;
 using BLART.Services;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 
-public class HelpCommand : ModuleBase<SocketCommandContext>
+using Group = Discord.Interactions.GroupAttribute;
+using Summary = Discord.Interactions.SummaryAttribute;
+
+public class HelpCommand : InteractionModuleBase<SocketInteractionContext>
 {
-    [Command("help")]
-    [Summary("Lists all available commands.")]
+    [SlashCommand("help", "Lists all available commands.")]
     public async Task Help()
     {
         EmbedBuilder builder = new();
@@ -18,25 +21,25 @@ public class HelpCommand : ModuleBase<SocketCommandContext>
         builder.WithFooter(EmbedBuilderService.Footer);
 
         int count = 0;
-        foreach (CommandInfo command in Bot.Instance.CommandService.Commands)
+        foreach (SlashCommandInfo command in Bot.Instance.InteractionService.SlashCommands)
         {
-            if (command.Summary == "DNI")
+            if (command.Description == "DNI")
                 continue;
             count++;
             List<string> args = new();
-            foreach (ParameterInfo arg in command.Parameters)
-                args.Add($"{arg.Name} -- {arg.Summary}");
+            foreach (SlashCommandParameterInfo arg in command.Parameters)
+                args.Add($"{arg.Name} -- {arg.Description}");
 
             StringBuilder stringBuilder = new();
             foreach (string s in args)
                 if (!string.IsNullOrEmpty(s))
                     stringBuilder.AppendLine(s);
-            stringBuilder.AppendLine(command.Summary ?? "No description");
+            stringBuilder.AppendLine(command.Description ?? "No description");
             builder.AddField(command.Name, stringBuilder.ToString());
 
             if (count == 24)
             {
-                await ReplyAsync(embed: builder.Build());
+                await RespondAsync(embed: builder.Build());
                 builder = new();
                 builder.WithColor(Color.Purple);
                 builder.WithCurrentTimestamp();
@@ -46,6 +49,6 @@ public class HelpCommand : ModuleBase<SocketCommandContext>
             }
         }
 
-        await ReplyAsync(embed: builder.Build());
+        await RespondAsync(embed: builder.Build());
     }
 }

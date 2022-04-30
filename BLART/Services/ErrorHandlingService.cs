@@ -59,8 +59,8 @@ public static class ErrorHandlingService
         : ErrorDescriptions[ErrorCodes.Unspecified];
 
     public static async Task<Embed> GetErrorEmbed(ErrorCodes errorCode, string extra = "") =>
-        await EmbedBuilderService.CreateBasicEmbed(GetErrorMessage(errorCode, extra),
+        await EmbedBuilderService.CreateBasicEmbed(GetErrorMessage(errorCode),
             !string.IsNullOrEmpty(extra)
-                ? string.Format(GetErrorDescription(errorCode), extra)
+                ? string.Format(GetErrorDescription(errorCode), $"\"{extra}\"")
                 : GetErrorDescription(errorCode).Replace("{0}", string.Empty), Color.Red);
 }

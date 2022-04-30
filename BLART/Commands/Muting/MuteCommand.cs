@@ -4,20 +4,24 @@ using BLART.Modules;
 using BLART.Services;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 
-public class MuteCommand : ModuleBase<SocketCommandContext>
+using Group = Discord.Interactions.GroupAttribute;
+using Summary = Discord.Interactions.SummaryAttribute;
+
+[Group("mute", "Commands for managing server mutes.")]
+public partial class MuteCommands : InteractionModuleBase<SocketInteractionContext>
 {
-    [Command("mute")]
-    [Summary("Mutes the indicated user for the given time period.")]
+    [SlashCommand("mute", "Mutes the indicated user for the given time period.")]
     public async Task Mute(
-        [Summary("The user to mute.")] SocketUser user,
-        [Summary("The time duration")] string duration,
-        [Summary("The reason for the mute.")] [Remainder] string reason)
+        [Discord.Commands.Summary("The user to mute.")] SocketUser user,
+        [Discord.Commands.Summary("The time duration")] string duration,
+        [Discord.Commands.Summary("The reason for the mute.")] [Remainder] string reason)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.Message.Author))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
-            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
             return;
         }
         
@@ -25,18 +29,19 @@ public class MuteCommand : ModuleBase<SocketCommandContext>
         if (span.Ticks <= 0)
         {
             Log.Error(nameof(Mute), $"{duration} failed to parse.");
-            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.UnableToParseDuration, duration));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.UnableToParseDuration, duration));
             return;
         }
 
-        if (user == Context.Message.Author)
+        if (user == Context.User)
         {
-            await ReplyAsync("No, don't do it, you have to much to live for!");
+            await RespondAsync("No, don't do it, you have to much to live for!");
             return;
         }
         
-        await Logging.SendLogMessage("User muted", $"{Context.Message.Author.Username} muted {user.Username} for {span} for {reason}.", Color.Orange);
+        await Logging.SendLogMessage("User muted", $"{Context.User.Username} muted {user.Username} for {span} for {reason}.", Color.Orange);
         await ((IGuildUser)user).SetTimeOutAsync(span);
-        await ReplyAsync($"User muted for {span}. Reason: {reason}.");
+        await RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("User Muted",
+            $"{user.Username} has been muted for {span}.\nReason: {reason}", Color.Red));
     }
 }

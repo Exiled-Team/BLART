@@ -5,7 +5,9 @@ using BLART.Modules;
 using BLART.Services;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
+using Modals;
 
 public class Bot
 {
@@ -19,6 +21,8 @@ public class Bot
     private DiscordSocketClient Client => client ??= new DiscordSocketClient(new DiscordSocketConfig { AlwaysDownloadUsers = true, MessageCacheSize = 10000, });
     public CommandService CommandService { get; private set; } = null!;
     public CommandHandler CommandHandler { get; private set; } = null!;
+    public InteractionService InteractionService { get; private set; } = null!;
+    public SlashCommandHandler SlashCommandHandler { get; private set; } = null!;
 
     public Bot(string[] args)
     {
@@ -26,11 +30,10 @@ public class Bot
         Init(args).GetAwaiter().GetResult();
     }
 
-    ~Bot()
-    {
-        Client.StopAsync();
-        Client.LogoutAsync();
-    }
+    /// <summary>
+    /// Terminates the bot.
+    /// </summary>
+    public void Destroy() => Client.LogoutAsync();
 
     private async Task Init(string[] args)
     {
@@ -47,9 +50,13 @@ public class Bot
         Log.Debug(nameof(Init), "Initializing Database..");
         DatabaseHandler.Init(args.Contains("--updatetables"));
         
-        Log.Debug(nameof(Init), "Initializing Commands..");
+        Log.Debug(nameof(Init), "Initializing Text Commands..");
         CommandService = new CommandService();
         CommandHandler = new CommandHandler(Client, CommandService);
+
+        Log.Debug(nameof(Init), "Initializing Slash commands..");
+        InteractionService = new InteractionService(Client);
+        SlashCommandHandler = new SlashCommandHandler(InteractionService, Client);
 
         Log.Debug(nameof(Init), "Setting up logging..");
         CommandService.Log += Log.Send;
@@ -71,8 +78,21 @@ public class Bot
         Log.Debug(nameof(Init), "Setting up raid protection..");
         Client.UserJoined += RaidProtection.OnUserJoined;
         
-        Log.Debug(nameof(Init), "Installing commands..");
+        Log.Debug(nameof(Init), "Installing text commands..");
         await CommandHandler.InstallCommandsAsync();
+
+        Log.Debug(nameof(Init), "Installing slash commands..");
+        await SlashCommandHandler.InstallCommandsAsync();
+        Client.Ready += async () =>
+        {
+            int slashCommandsRegistered = (await InteractionService.RegisterCommandsToGuildAsync(Guild.Id)).Count;
+
+            Log.Debug(nameof(Init), $"Registered {slashCommandsRegistered} interaction modules.");
+        };
+
+        Log.Debug(nameof(Init), "Registering Modal handlers..");
+        Client.ModalSubmitted += BugReportModal.HandleModal;
+        Client.ButtonExecuted += BugReportModal.HandleButton;
         
         Log.Debug(nameof(Init), "Logging in..");
         await Client.LoginAsync(TokenType.Bot, Program.Config.BotToken);

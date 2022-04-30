@@ -4,26 +4,43 @@ using System.Threading.Tasks;
 using BLART.Modules;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 using Services;
 
-public class DenyCommand : ModuleBase<SocketCommandContext>
+using Group = Discord.Interactions.GroupAttribute;
+using Summary = Discord.Interactions.SummaryAttribute;
+
+[Group("rent", "Commands for controlling channel renting.")]
+public partial class RentCommands : InteractionModuleBase<SocketInteractionContext>
 {
-    [Command("rent deny")]
-    [Summary("Denies user(s) from your channel.")]
+    [SlashCommand("deny", "Denies user(s) from your channel.")]
     public async Task Deny([Summary("The users to deny access.")] [Remainder] string users)
     {
-        if (!ChannelRenting.IsRenting(Context.Message.Author))
+        if (!ChannelRenting.IsRenting(Context.User))
         {
-            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied,
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied,
                 "You can only use this command while renting a channel."));
             return;
         }
 
-        IVoiceChannel channel = Bot.Instance.Guild.GetVoiceChannel(ChannelRenting.RentedChannels[Context.Message.Author]);
-        foreach (SocketUser user in Context.Message.MentionedUsers)
+        List<IGuildUser> guildUsers = new();
+
+        foreach (string s in users.Split(' '))
+        {
+            if (ulong.TryParse(s.Replace("<", string.Empty).Replace("@", string.Empty).Replace(">", string.Empty), out ulong userId))
+            {
+                IGuildUser user = Context.Guild.GetUser(userId);
+                if (user is not null)
+                    guildUsers.Add(user);
+            }
+        }
+
+        IVoiceChannel channel = Bot.Instance.Guild.GetVoiceChannel(ChannelRenting.RentedChannels[Context.User]);
+            
+        foreach (IGuildUser user in guildUsers)
             await channel.AddPermissionOverwriteAsync(user, new OverwritePermissions(connect: PermValue.Deny));
 
-        await ReplyAsync("The mentioned users have been denied access to your channel.");
+        await RespondAsync("The mentioned users have been denied access to your channel.");
     }
 }

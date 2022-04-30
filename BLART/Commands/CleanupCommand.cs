@@ -3,21 +3,24 @@ namespace BLART.Commands;
 using BLART.Services;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 
-public class CleanupCommand : ModuleBase<SocketCommandContext>
+using Group = Discord.Interactions.GroupAttribute;
+using Summary = Discord.Interactions.SummaryAttribute;
+
+public class CleanupCommand : InteractionModuleBase<SocketInteractionContext>
 {
-    [Command("cleanup")]
-    [Summary("Cleans up messages in a given channel.")]
+    [SlashCommand("cleanup", "Cleans up messages in a given channel.")]
     public async Task Cleanup(
-        [Summary("The channel to clean up in.")] SocketTextChannel channel,
-        [Summary("The amount of messages to delete.")] int amount,
-        [Summary("The message ID to start deleting at. (Optional)")] ulong messageId = 0,
-        [Summary("The direction to move in. (Optional)")] Direction direction = Direction.Before)
+        [Discord.Commands.Summary("The channel to clean up in.")] SocketTextChannel channel,
+        [Discord.Commands.Summary("The amount of messages to delete.")] int amount,
+        [Discord.Commands.Summary("The message ID to start deleting at. (Optional)")] ulong messageId = 0,
+        [Discord.Commands.Summary("The direction to move in. (Optional)")] Direction direction = Direction.Before)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.Message.Author))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
-            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
             return;
         }
 
@@ -28,6 +31,5 @@ public class CleanupCommand : ModuleBase<SocketCommandContext>
             messages = await channel.GetMessagesAsync(amount).FlattenAsync();
 
         await channel.DeleteMessagesAsync(messages);
-        await Context.Message.DeleteAsync();
     }
 }

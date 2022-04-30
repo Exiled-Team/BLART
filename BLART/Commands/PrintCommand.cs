@@ -2,11 +2,14 @@ namespace BLART.Commands;
 
 using BLART.Services;
 using Discord.Commands;
+using Discord.Interactions;
 
-public class PrintCommand : ModuleBase<SocketCommandContext>
+using Group = Discord.Interactions.GroupAttribute;
+using Summary = Discord.Interactions.SummaryAttribute;
+
+public class PrintCommand : InteractionModuleBase<SocketInteractionContext>
 {
-    [Command("print")]
-    [Summary("DNI")]
+    [SlashCommand("print", "DNI")]
     public Task Print([Remainder] string message)
     {
         Log.Info(nameof(Print), message);

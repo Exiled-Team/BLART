@@ -3,17 +3,20 @@ namespace BLART.Commands.RedRoles;
 using BLART.Services;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 
-public class RemoveCommand : ModuleBase<SocketCommandContext>
+using Group = Discord.Interactions.GroupAttribute;
+using Summary = Discord.Interactions.SummaryAttribute;
+
+public partial class RedRoleCommands
 {
-    [Command("remredrole")]
-    [Summary("Removes the red role from the specified user.")]
-    public async Task Remove([Summary("The user who's red role is to be removed.")] SocketUser user)
+    [SlashCommand("remove", "Removes the users red role.")]
+    public async Task Remove([Discord.Commands.Summary("The user who's red role is to be removed.")] SocketUser user)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.Message.Author))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
-            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
             return;
         }
 
@@ -22,12 +25,13 @@ public class RemoveCommand : ModuleBase<SocketCommandContext>
 
         if (target.RoleIds.All(r => r != role.Id))
         {
-            await ReplyAsync("This user does not have a red role.");
+            await RespondAsync("This user does not have a red role.");
             return;
         }
 
         await target.RemoveRoleAsync(role);
         DatabaseHandler.RemoveEntry(target.Id, DatabaseType.RedRole);
-        await Context.Message.AddReactionAsync(Emote.Parse(Bot.Instance.ReplyEmote));
+        await RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Red role removed",
+            $"{target.Username} has had their red role removed.", Color.Green));
     }
 }

@@ -4,24 +4,27 @@ using BLART.Modules;
 using BLART.Services;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 
-public class BanIdCommand : ModuleBase<SocketCommandContext>
+using Group = Discord.Interactions.GroupAttribute;
+using Summary = Discord.Interactions.SummaryAttribute;
+
+public partial class BanCommand : InteractionModuleBase<SocketInteractionContext>
 {
-    [Command("banid")]
-    [Summary("Bans the given user ID")]
-    public async Task Ban([Summary("The user to ban.")] ulong user, [Summary("The reason for the ban.")][Remainder] string reason)
+    [SlashCommand("id", "Bans the given user ID.")]
+    public async Task Ban([Discord.Commands.Summary("The user to ban.")] ulong user, [Discord.Commands.Summary("The reason for the ban.")][Remainder] string reason)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.Message.Author))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
-            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
             return;
         }
 
         reason = ReasonParsing.ParseRules(reason);
         await Context.Guild.AddBanAsync(user, 7, reason);
         await Logging.SendLogMessage("User banned",
-            $"{Context.Message.Author.Username} has banned {user} for {reason}.", Color.Red);
-        DatabaseHandler.AddEntry(user, reason, DatabaseType.Ban, Context.Message.Author.Id);
-        await Context.Message.AddReactionAsync(Emote.Parse(Bot.Instance.ReplyEmote));
+            $"{Context.User.Username} has banned {user} for {reason}.", Color.Red);
+        DatabaseHandler.AddEntry(user, reason, DatabaseType.Ban, Context.User.Id);
+        await RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("User banned", $"{user} has been banned for: {reason}", Color.Orange));
     }
 }

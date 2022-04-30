@@ -4,14 +4,17 @@ using System.Threading.Tasks;
 using BLART.Services;
 using BLART;
 using Discord.Commands;
+using Discord.Interactions;
 
-public class TriggerRemoveCommand : ModuleBase<SocketCommandContext>
+using Group = Discord.Interactions.GroupAttribute;
+using Summary = Discord.Interactions.SummaryAttribute;
+
+public partial class TriggerCommands
 {
-    [Command("pt remove")]
-    [Summary("Removes your current ping trigger.")]
+    [SlashCommand("remove", "Removes your current ping trigger.")]
     public async Task DoRemoveTrigger()
     {
-        DatabaseHandler.RemoveEntry(Context.Message.Author.Id, DatabaseType.Ping);
-        await ReplyAsync("Ping trigger removed.");
+        DatabaseHandler.RemoveEntry(Context.User.Id, DatabaseType.Ping);
+        await RespondAsync("Ping trigger removed.");
     }
 }

@@ -4,24 +4,27 @@ using BLART.Objects;
 using BLART.Services;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 
-public class WarnInfoCommand : ModuleBase<SocketCommandContext>
+using Group = Discord.Interactions.GroupAttribute;
+using Summary = Discord.Interactions.SummaryAttribute;
+
+public partial class WarningCommands
 {
-    [Command("warninfo")]
-    [Summary("Gives information about a users warning(s), if any.")]
-    public async Task WarnInfo([Summary("The user to get info for.")] SocketUser user)
+    [SlashCommand("info", "Gives information about a users warning(s), if any.")]
+    public async Task WarnInfo([Discord.Commands.Summary("The user to get info for.")] SocketUser user)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.Message.Author))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
-            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
             return;
         }
 
         List<PunishmentInfo> infos = DatabaseHandler.GetPunishmentInfo(user.Id, DatabaseType.Warn);
         if (infos.Count <= 0)
         {
-            await ReplyAsync("There are no warnings for this user.");
+            await RespondAsync("There are no warnings for this user.");
             return;
         }
 
@@ -37,6 +40,6 @@ public class WarnInfoCommand : ModuleBase<SocketCommandContext>
                 $"Issued by: {Context.Guild.GetUsername(info.StaffId)}\nIssued on: {info.Issued}\nReason: {info.Reason}");
         }
 
-        await ReplyAsync(embed: builder.Build());
+        await RespondAsync(embed: builder.Build());
     }
 }

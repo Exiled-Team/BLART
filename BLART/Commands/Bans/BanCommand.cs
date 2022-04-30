@@ -4,17 +4,21 @@ using BLART.Modules;
 using BLART.Services;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 
-public class BanCommand : ModuleBase<SocketCommandContext>
+using Group = Discord.Interactions.GroupAttribute;
+using Summary = Discord.Interactions.SummaryAttribute;
+
+[Group("ban", "Commands for banning users.")]
+public partial class BanCommand : InteractionModuleBase<SocketInteractionContext>
 {
-    [Command("ban")]
-    [Summary("Bans the given user")]
+    [SlashCommand("user", "Bans the given user.")]
     public async Task Ban([Summary("The user to ban.")] SocketUser user, [Summary("The reason for the ban.")][Remainder] string reason)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.Message.Author))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
-            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
             return;
         }
 
@@ -22,17 +26,17 @@ public class BanCommand : ModuleBase<SocketCommandContext>
         try
         {
             await user.SendMessageAsync(
-                $"You have been banned from {Context.Guild.Name} by {Context.Message.Author.Username} for {reason}");
+                $"You have been banned from {Context.Guild.Name} by {Context.User.Username} for {reason}");
         }
         catch (Exception)
         {
             Log.Warn(nameof(Ban), $"Failed to message {user.Username}");
         }
-
+        
         await ((IGuildUser)user).BanAsync(7, reason);
-        await Context.Message.AddReactionAsync(Emote.Parse(Bot.Instance.ReplyEmote));
+        await RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("User banned", $"{user.Username} has been banned for: {reason}", Color.Orange));
         await Logging.SendLogMessage("User banned",
-            $"{Context.Message.Author.Username} has banned {user.Username} for {reason}.", Color.Red);
-        DatabaseHandler.AddEntry(user.Id, reason, DatabaseType.Ban, Context.Message.Author.Id);
+            $"{Context.User.Username} has banned {user.Username} for {reason}.", Color.Red);
+        DatabaseHandler.AddEntry(user.Id, reason, DatabaseType.Ban, Context.User.Id);
     }
 }

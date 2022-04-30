@@ -5,19 +5,23 @@ using BLART.Modules;
 using BLART.Services;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 
-public class EmbedCommand : ModuleBase<SocketCommandContext>
+using Group = Discord.Interactions.GroupAttribute;
+using Summary = Discord.Interactions.SummaryAttribute;
+
+[Group("embed", "Commands for managing embeded messages.")]
+public partial class EmbedCommands : InteractionModuleBase<SocketInteractionContext>
 {
-    [Command("embed")]
-    [Summary("Sends an embeded message into the specified channel.")]
+    [SlashCommand("send", "Sends an embeded message into a specific channel.")]
     public async Task Embed(
-        [Summary("The channel to send the embed to.")] ITextChannel channel,
-        [Summary("The color to use.")] string color,
-        [Summary("The title and contents to use.")] [Remainder] string contents)
+        [Discord.Commands.Summary("The channel to send the embed to.")] ITextChannel channel,
+        [Discord.Commands.Summary("The color to use.")] string color,
+        [Discord.Commands.Summary("The title and contents to use.")] [Remainder] string contents)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.Message.Author))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
-            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
             return;
         }
 
@@ -27,7 +31,7 @@ public class EmbedCommand : ModuleBase<SocketCommandContext>
         }
         catch (Exception)
         {
-            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.FailedToParseColor, color));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.FailedToParseColor, color));
             return;
         }
 
@@ -39,7 +43,7 @@ public class EmbedCommand : ModuleBase<SocketCommandContext>
 
         if (string.IsNullOrEmpty(title))
         {
-            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.FailedToParseTitle));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.FailedToParseTitle));
             return;
         }
 
@@ -52,7 +56,7 @@ public class EmbedCommand : ModuleBase<SocketCommandContext>
         catch (Exception e)
         {
             Log.Error(nameof(Embed), e.Message);
-            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.FailedToParseColor, color));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.FailedToParseColor, color));
             return;
         }
 
@@ -65,8 +69,6 @@ public class EmbedCommand : ModuleBase<SocketCommandContext>
 
         await channel.SendMessageAsync(embed: await EmbedBuilderService.CreateBasicEmbed(title.Trim('"'), contents, c));
         if (!isSilent)
-            await ReplyAsync("Done.");
-        else
-            await Context.Message.DeleteAsync();
+            await RespondAsync("Done.");
     }
 }

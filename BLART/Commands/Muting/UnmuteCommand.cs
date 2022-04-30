@@ -4,22 +4,26 @@ using BLART.Modules;
 using BLART.Services;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 
-public class UnmuteCommand : ModuleBase<SocketCommandContext>
+using Group = Discord.Interactions.GroupAttribute;
+using Summary = Discord.Interactions.SummaryAttribute;
+
+public partial class MuteCommands
 {
-    [Command("unmute")]
-    [Summary("Unmutes the specified user.")]
-    public async Task Unmute([Summary("The user to unmute")] SocketUser user)
+    [SlashCommand("unmute", "Unmutes the specified user.")]
+    public async Task Unmute([Discord.Commands.Summary("The user to unmute")] SocketUser user)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.Message.Author))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
-            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
             return;
         }
 
-        await Logging.SendLogMessage("User unmuted", $"{Context.Message.Author.Username} unmuted {user.Username}.", Color.Orange);
+        await Logging.SendLogMessage("User unmuted", $"{Context.User.Username} unmuted {user.Username}.", Color.Orange);
         await ((IGuildUser)user).RemoveTimeOutAsync();
-        await Context.Message.AddReactionAsync(Emote.Parse(Bot.Instance.ReplyEmote));
+        await RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Mute Removed",
+            $"{user.Username} has had their mute removed.", Color.Green));
     }
 }

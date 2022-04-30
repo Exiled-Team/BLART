@@ -3,14 +3,17 @@ namespace BLART.Commands;
 using BLART.Services;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 
-public class PebkacCommand : ModuleBase<SocketCommandContext>
+using Group = Discord.Interactions.GroupAttribute;
+using Summary = Discord.Interactions.SummaryAttribute;
+
+public class PebkacCommand : InteractionModuleBase<SocketInteractionContext>
 {
-    [Command("pebkac")]
-    [Summary("Tells a user they are being a 4-head.")]
+    [SlashCommand("pebkac", "Tells a user they are being a 4-head.")]
     public async Task Pebkac()
     {
-        IGuildUser user = (IGuildUser)Context.Message.Author;
+        IGuildUser user = (IGuildUser)Context.User;
         if (user.RoleIds.All(r => r != 656673336402640902 && r != 668651927298375690 && r != 656673780332101648))
         {
             await Context.Channel.SendMessageAsync("YOU'RE a PEBKAC.");

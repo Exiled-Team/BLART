@@ -11,7 +11,7 @@ public class BugReporting
 
     public static SocketTextChannel BugReportChannel => _channel ??= Bot.Instance.Guild.GetTextChannel(Program.Config.BugReportId);
 
-    public static Dictionary<IUser, (List<FileAttachment>, EmbedBuilder)> BugReports = new();
+    public static Dictionary<IUser, EmbedBuilder> BugReports = new();
 
     public static Dictionary<ulong, SocketThreadChannel> OpenThreads = new();
 
