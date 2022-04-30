@@ -20,21 +20,30 @@ public class EmbedCommand : ModuleBase<SocketCommandContext>
             await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
             return;
         }
-        
-        color = color.Replace("#", string.Empty);
+
+        try
+        {
+            color = color.Replace("#", string.Empty);
+        }
+        catch (Exception)
+        {
+            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.FailedToParseColor, color));
+            return;
+        }
+
         string title = string.Empty;
         Color c;
         
         foreach (Match match in Regex.Matches(contents, "\"([^\"]*)\""))
             title = match.ToString();
 
-        contents = contents.Replace(title, string.Empty);
-        
         if (string.IsNullOrEmpty(title))
         {
-            await ReplyAsync("Unable to parse title from contents. Did you forget to use quotes?");
+            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.FailedToParseTitle));
             return;
         }
+
+        contents = contents.Replace(title, string.Empty);
         
         try
         {
@@ -43,8 +52,7 @@ public class EmbedCommand : ModuleBase<SocketCommandContext>
         catch (Exception e)
         {
             Log.Error(nameof(Embed), e.Message);
-            await ReplyAsync(
-                $"Unable to parse {color} into a valid color. Please use HTML color codes.");
+            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.FailedToParseColor, color));
             return;
         }
 
