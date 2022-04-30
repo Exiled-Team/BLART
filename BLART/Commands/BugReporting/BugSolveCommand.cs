@@ -17,8 +17,7 @@ public class BugSolveCommand : ModuleBase<SocketCommandContext>
         IMessage message = await BugReporting.BugReportChannel.GetMessageAsync(messageId);
         if ($"{Context.Message.Author.Username}#{Context.Message.Author.Discriminator}" != message.Embeds.First().Author!.Value.Name && !CommandHandler.CanRunStaffCmd(Context.Message.Author))
         {
-            await ReplyAsync(
-                "Permission denied. Only the bug submitter, Discord Staff and EXILED Developers can mark reports as solved.");
+            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied, "Only the bug submitter, Discord Staff and EXILED Developers can mark reports as solved."));
             return;
         }
 

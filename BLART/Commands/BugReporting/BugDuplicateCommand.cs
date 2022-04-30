@@ -16,8 +16,7 @@ public class BugDuplicateCommand : ModuleBase<SocketCommandContext>
         IMessage originalMessage = await BugReporting.BugReportChannel.GetMessageAsync(originalMessageId);
         if ($"{Context.Message.Author.Username}#{Context.Message.Author.Discriminator}" != message.Embeds.First().Author!.Value.Name && !CommandHandler.CanRunStaffCmd(Context.Message.Author))
         {
-            await ReplyAsync(
-                "Permission denied. Only the bug submitter, Discord Staff and EXILED Developers can mark reports as duplicates.");
+            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied, "Only the bug submitter, Discord Staff and EXILED Developers can mark reports as duplicates."));
             return;
         }
 

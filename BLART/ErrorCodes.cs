@@ -15,4 +15,5 @@ public enum ErrorCodes
     NoRecordForUserFound,
     InvalidMessageId,
     Unspecified,
+    TriggerLengthExceedsLimit,
 }

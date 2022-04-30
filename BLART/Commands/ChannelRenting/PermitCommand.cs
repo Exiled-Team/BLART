@@ -5,6 +5,7 @@ using BLART.Modules;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Services;
 
 public class PermitCommand : ModuleBase<SocketCommandContext>
 {
@@ -14,7 +15,8 @@ public class PermitCommand : ModuleBase<SocketCommandContext>
     {
         if (!ChannelRenting.IsRenting(Context.Message.Author))
         {
-            await ReplyAsync("You must be renting a channel to use this command.");
+            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied,
+                "You can only use this command while renting a channel."));
             return;
         }
 

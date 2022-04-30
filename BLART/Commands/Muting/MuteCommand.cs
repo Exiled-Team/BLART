@@ -17,7 +17,7 @@ public class MuteCommand : ModuleBase<SocketCommandContext>
     {
         if (!CommandHandler.CanRunStaffCmd(Context.Message.Author))
         {
-            await ReplyAsync(ErrorHandlingService.GetErrorMessage(ErrorCodes.PermissionDenied));
+            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
             return;
         }
         
@@ -25,7 +25,7 @@ public class MuteCommand : ModuleBase<SocketCommandContext>
         if (span.Ticks <= 0)
         {
             Log.Error(nameof(Mute), $"{duration} failed to parse.");
-            await ReplyAsync(ErrorHandlingService.GetErrorMessage(ErrorCodes.UnableToParseDuration));
+            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.UnableToParseDuration, duration));
             return;
         }
 

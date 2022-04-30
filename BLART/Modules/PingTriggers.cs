@@ -23,10 +23,12 @@ public class PingTriggers
             foreach (SocketUser mentioned in msg.MentionedUsers)
             {
                 string triggerMessage = DatabaseHandler.GetPingTrigger(mentioned.Id);
-                if (!string.IsNullOrEmpty(triggerMessage))
-                    await msg.Channel.SendMessageAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Ping Trigger",
-                        $"{msg.Author.Mention} - {triggerMessage}", Color.Gold));
-                _lastPing[msg.Author] = DateTime.UtcNow;
+                if (!string.IsNullOrEmpty(triggerMessage) && triggerMessage.Length < Program.Config.TriggerLengthLimit)
+                {
+                    await msg.Channel.SendMessageAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Ping Trigger", $"{msg.Author.Mention} - {triggerMessage}", Color.Gold));
+                    _lastPing[msg.Author] = DateTime.UtcNow;
+                    break;
+                }
             }
         }
         catch (Exception e)

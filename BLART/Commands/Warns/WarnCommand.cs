@@ -16,7 +16,7 @@ public class WarnCommand : ModuleBase<SocketCommandContext>
     {
         if (!CommandHandler.CanRunStaffCmd(Context.Message.Author))
         {
-            await ReplyAsync(ErrorHandlingService.GetErrorMessage(ErrorCodes.PermissionDenied));
+            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
             return;
         }
 

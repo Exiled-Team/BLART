@@ -5,6 +5,7 @@ using BLART.Modules;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Services;
 
 public class DenyCommand : ModuleBase<SocketCommandContext>
 {
@@ -14,7 +15,8 @@ public class DenyCommand : ModuleBase<SocketCommandContext>
     {
         if (!ChannelRenting.IsRenting(Context.Message.Author))
         {
-            await ReplyAsync("You can only use this command while renting a channel.");
+            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied,
+                "You can only use this command while renting a channel."));
             return;
         }
 

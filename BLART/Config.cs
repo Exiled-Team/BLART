@@ -14,6 +14,7 @@ public class Config
     public bool Debug { get; set; }
     public ulong RedRoleId { get; set; }
     public ulong BugReportId { get; set; }
+    public int TriggerLengthLimit { get; set; }
 
     public static readonly Config Default = new Config
     {
@@ -28,5 +29,6 @@ public class Config
         Debug = false,
         RedRoleId = 0,
         BugReportId = 0,
+        TriggerLengthLimit = 200,
     };
 }

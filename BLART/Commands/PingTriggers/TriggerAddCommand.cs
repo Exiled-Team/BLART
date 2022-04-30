@@ -10,6 +10,12 @@ public class TriggerAddCommand : ModuleBase<SocketCommandContext>
     [Summary("Adds a ping trigger.")]
     public async Task AddPingTrigger([Summary("The message to be sent.")] [Remainder] string message)
     {
+        if (message.Length > Program.Config.TriggerLengthLimit)
+        {
+            await ReplyAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.TriggerLengthExceedsLimit, Program.Config.TriggerLengthLimit.ToString()));
+            return;
+        }
+
         bool flag = false;
         if (!string.IsNullOrEmpty(DatabaseHandler.GetPingTrigger(Context.Message.Author.Id)))
         {

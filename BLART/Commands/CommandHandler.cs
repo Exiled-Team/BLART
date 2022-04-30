@@ -5,6 +5,7 @@ using BLART.TypeReaders;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Services;
 
 public class CommandHandler
 {
@@ -36,7 +37,16 @@ public class CommandHandler
 
         SocketCommandContext context = new(client, msg);
 
-        await service.ExecuteAsync(context, argPos, null);
+        try
+        {
+            await service.ExecuteAsync(context, argPos, null);
+        }
+        catch (Exception e)
+        {
+            Log.Error(nameof(HandleCommandAsync), $"Error executing command: {message.Content}\n{e}");
+            await message.Channel.SendMessageAsync(
+                embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.Unspecified, e.Message));
+        }
     }
 
     public static bool CanRunStaffCmd(SocketUser user) => CanRunStaffCmd((IGuildUser)user);
