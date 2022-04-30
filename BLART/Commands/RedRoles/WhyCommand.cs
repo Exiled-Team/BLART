@@ -11,7 +11,7 @@ using Summary = Discord.Interactions.SummaryAttribute;
 
 public partial class RedRoleCommands
 {
-    [SlashCommand("why", "Tells you why you were given a red role.")]
+    //[SlashCommand("why", "Tells you why you were given a red role.")]
     public async Task Why()
     {
         PunishmentInfo? info = DatabaseHandler.GetPunishmentInfo(Context.User.Id, DatabaseType.RedRole).FirstOrDefault();

@@ -12,7 +12,7 @@ using Summary = Discord.Interactions.SummaryAttribute;
 public partial class WarningCommands
 {
     [SlashCommand("infoid", "Gets warning info by a user's discord ID.")]
-    public async Task WarnInfo([Discord.Commands.Summary("The UserID of the user.")] ulong id)
+    public async Task WarnInfo([Summary("The UserID of the user.")] ulong id)
     {
         if (!CommandHandler.CanRunStaffCmd(Context.User))
         {

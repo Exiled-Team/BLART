@@ -9,11 +9,11 @@ using Discord.WebSocket;
 using Group = Discord.Interactions.GroupAttribute;
 using Summary = Discord.Interactions.SummaryAttribute;
 
-[Group("redrole", "Commands for managing red roles.")]
+//[Group("redrole", "Commands for managing red roles.")]
 public partial class RedRoleCommands : InteractionModuleBase<SocketInteractionContext>
 {
-    [SlashCommand("give", "Gives the specified user the red role.")]
-    public async Task Give([Discord.Commands.Summary("The user to give the role to.")] SocketUser user, [Discord.Commands.Summary("The reason why they are getting the role.")][Remainder] string reason)
+    //[SlashCommand("give", "Gives the specified user the red role.")]
+    public async Task Give([Summary("The user to give the role to.")] SocketUser user, [Summary("The reason why they are getting the role.")][Remainder] string reason)
     {
         if (!CommandHandler.CanRunStaffCmd(Context.User))
         {

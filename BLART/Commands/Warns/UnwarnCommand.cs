@@ -10,10 +10,10 @@ using Discord.Interactions;
 using Group = Discord.Interactions.GroupAttribute;
 using Summary = Discord.Interactions.SummaryAttribute;
 
-[Group("warn", "Commands for managing warnings.")]
+//[Group("warn", "Commands for managing warnings.")]
 public partial class WarningCommands : InteractionModuleBase<SocketInteractionContext>
 {
-    [SlashCommand("remove", "Removes the indicated warning.")]
+    //[SlashCommand("remove", "Removes the indicated warning.")]
     public async Task Unwarn([Discord.Commands.Summary("The ID number of the warning to remove.")] int id)
     {
         if (!CommandHandler.CanRunStaffCmd(Context.User))

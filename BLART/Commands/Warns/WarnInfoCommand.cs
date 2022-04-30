@@ -13,7 +13,7 @@ using Summary = Discord.Interactions.SummaryAttribute;
 public partial class WarningCommands
 {
     [SlashCommand("info", "Gives information about a users warning(s), if any.")]
-    public async Task WarnInfo([Discord.Commands.Summary("The user to get info for.")] SocketUser user)
+    public async Task WarnInfo([Summary("The user to get info for.")] SocketUser user)
     {
         if (!CommandHandler.CanRunStaffCmd(Context.User))
         {

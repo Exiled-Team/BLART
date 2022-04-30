@@ -13,7 +13,7 @@ using Summary = Discord.Interactions.SummaryAttribute;
 public partial class BanCommand : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("info", "Gets information (if available) about a user's ban.")]
-    public async Task BanInfo([Discord.Commands.Summary("The user ID to get info for.")] ulong userId)
+    public async Task BanInfo([Summary("The user ID to get info for.")] ulong userId)
     {
         if (!CommandHandler.CanRunStaffCmd(Context.User))
         {

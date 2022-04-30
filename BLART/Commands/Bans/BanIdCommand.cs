@@ -12,7 +12,7 @@ using Summary = Discord.Interactions.SummaryAttribute;
 public partial class BanCommand : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("id", "Bans the given user ID.")]
-    public async Task Ban([Discord.Commands.Summary("The user to ban.")] ulong user, [Discord.Commands.Summary("The reason for the ban.")][Remainder] string reason)
+    public async Task Ban([Summary("The user to ban.")] ulong user, [Discord.Commands.Summary("The reason for the ban.")][Remainder] string reason)
     {
         if (!CommandHandler.CanRunStaffCmd(Context.User))
         {

@@ -30,7 +30,7 @@ public class SlashCommandHandler
     {
         try
         {
-            SocketInteractionContext context = new SocketInteractionContext(client, interaction);
+            SocketInteractionContext context = new(client, interaction);
             await service.ExecuteCommandAsync(context, null);
         }
         catch (Exception e)
