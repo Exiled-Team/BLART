@@ -32,6 +32,7 @@ public class SlashCommandHandler
         {
             SocketInteractionContext context = new(client, interaction);
             await service.ExecuteCommandAsync(context, null);
+            Log.Info(nameof(HandleInteraction), $"{context.User.Username} has run a command. {context.Interaction.Data}");
         }
         catch (Exception e)
         {

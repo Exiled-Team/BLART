@@ -12,10 +12,10 @@ using Summary = Discord.Interactions.SummaryAttribute;
 
 public partial class WarningCommands
 {
-    //[SlashCommand("add", "Warns the indicated user.")]
+    [SlashCommand("add", "Warns the indicated user.")]
     public async Task Warn(
-        [Summary("The user to warn")] SocketUser user,
-        [Summary("The reason for the warning.")] [Remainder] string reason)
+        [Summary("User", "The user to warn")] SocketUser user,
+        [Summary("Reason", "The reason for the warning.")] [Remainder] string reason)
     {
         if (!CommandHandler.CanRunStaffCmd(Context.User))
         {

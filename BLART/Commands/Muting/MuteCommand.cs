@@ -15,9 +15,9 @@ public partial class MuteCommands : InteractionModuleBase<SocketInteractionConte
 {
     [SlashCommand("mute", "Mutes the indicated user for the given time period.")]
     public async Task Mute(
-        [Summary("The user to mute.")] SocketUser user,
-        [Summary("The time duration")] string duration,
-        [Summary("The reason for the mute.")] [Remainder] string reason)
+        [Summary("User", "The user to mute.")] SocketUser user,
+        [Summary("Duration", "The time duration")] string duration,
+        [Summary("Reason", "The reason for the mute.")] [Remainder] string reason)
     {
         if (!CommandHandler.CanRunStaffCmd(Context.User))
         {

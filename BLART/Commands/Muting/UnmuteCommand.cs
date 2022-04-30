@@ -13,7 +13,7 @@ using Summary = Discord.Interactions.SummaryAttribute;
 public partial class MuteCommands
 {
     [SlashCommand("unmute", "Unmutes the specified user.")]
-    public async Task Unmute([Summary("The user to unmute")] SocketUser user)
+    public async Task Unmute([Summary("User", "The user to unmute")] SocketUser user)
     {
         if (!CommandHandler.CanRunStaffCmd(Context.User))
         {

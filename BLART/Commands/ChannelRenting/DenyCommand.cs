@@ -15,7 +15,7 @@ using Summary = Discord.Interactions.SummaryAttribute;
 public partial class RentCommands : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("deny", "Denies user(s) from your channel.")]
-    public async Task Deny([Summary("The users to deny access.")] [Remainder] string users)
+    public async Task Deny([Summary("Users", "The users to deny access.")] [Remainder] string users)
     {
         if (!ChannelRenting.IsRenting(Context.User))
         {

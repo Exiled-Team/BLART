@@ -14,7 +14,7 @@ using Summary = Discord.Interactions.SummaryAttribute;
 public partial class RentCommands : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("allow", "Permit user(s) to join your rented channel.")]
-    public async Task Permit([Summary("The user(s) to permit")] [Remainder] string users)
+    public async Task Permit([Summary("Users", "The user(s) to permit")] [Remainder] string users)
     {
         if (!ChannelRenting.IsRenting(Context.User))
         {

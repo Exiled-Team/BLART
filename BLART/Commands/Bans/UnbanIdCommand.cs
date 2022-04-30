@@ -13,7 +13,7 @@ using Summary = Discord.Interactions.SummaryAttribute;
 public partial class BanCommand : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("unban", "Unbans the given user ID.")]
-    public async Task Unban([Summary("The user ID to unban")] ulong id)
+    public async Task Unban([Summary("UserID", "The user ID to unban")] ulong id)
     {
         if (!CommandHandler.CanRunStaffCmd(Context.User))
         {

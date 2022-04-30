@@ -15,9 +15,9 @@ public partial class EmbedCommands : InteractionModuleBase<SocketInteractionCont
 {
     [SlashCommand("send", "Sends an embeded message into a specific channel.")]
     public async Task Embed(
-        [Summary("The channel to send the embed to.")] ITextChannel channel,
-        [Summary("The color to use.")] string color,
-        [Summary("The title and contents to use.")] [Remainder] string contents)
+        [Summary("Channel", "The channel to send the embed to.")] ITextChannel channel,
+        [Summary("Color", "The color to use.")] string color,
+        [Summary("Contents", "The title and contents to use.")] [Remainder] string contents)
     {
         if (!CommandHandler.CanRunStaffCmd(Context.User))
         {

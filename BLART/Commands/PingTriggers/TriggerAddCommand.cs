@@ -12,7 +12,7 @@ using Summary = Discord.Interactions.SummaryAttribute;
 public partial class TriggerCommands : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("add", "Adds a ping trigger.")]
-    public async Task AddPingTrigger([Summary("The message to be sent.")] [Remainder] string message)
+    public async Task AddPingTrigger([Summary("Message", "The message to be sent.")] [Remainder] string message)
     {
         if (message.Length > Program.Config.TriggerLengthLimit)
         {

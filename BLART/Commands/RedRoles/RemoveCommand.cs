@@ -11,8 +11,8 @@ using Summary = Discord.Interactions.SummaryAttribute;
 
 public partial class RedRoleCommands
 {
-    //[SlashCommand("remove", "Removes the users red role.")]
-    public async Task Remove([Summary("The user who's red role is to be removed.")] SocketUser user)
+    [SlashCommand("remove", "Removes the users red role.")]
+    public async Task Remove([Summary("User", "The user who's red role is to be removed.")] SocketUser user)
     {
         if (!CommandHandler.CanRunStaffCmd(Context.User))
         {

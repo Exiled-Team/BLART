@@ -13,8 +13,8 @@ using Summary = Discord.Interactions.SummaryAttribute;
 [Group("ban", "Commands for banning users.")]
 public partial class BanCommand : InteractionModuleBase<SocketInteractionContext>
 {
-    //[SlashCommand("user", "Bans the given user.")]
-    public async Task Ban([Summary("The user to ban.")] SocketUser user, [Summary("The reason for the ban.")][Remainder] string reason)
+    [SlashCommand("user", "Bans the given user.")]
+    public async Task Ban([Summary("User", "The user to ban.")] SocketUser user, [Summary("Reason", "The reason for the ban.")][Remainder] string reason)
     {
         if (!CommandHandler.CanRunStaffCmd(Context.User))
         {

@@ -1,5 +1,6 @@
 ﻿namespace BLART;
 
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 
@@ -15,6 +16,7 @@ public static class Program
 
     public static void Main(string[] args)
     {
+        Console.WriteLine($"Starting. Version: {Assembly.GetExecutingAssembly().GetName().Version}");
         if (args.Contains("--debug"))
             Config.Debug = true;
         _bot = new Bot(args);
