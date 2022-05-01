@@ -1,5 +1,6 @@
 namespace BLART.Modules;
 
+using System.Text;
 using System.Text.RegularExpressions;
 using Commands;
 using Discord;
@@ -71,7 +72,34 @@ public class SpamPrevention
         return SpamTracker[user].Item2 > Program.Config.SpamLimit;
     }
 
-    private static bool Check(SocketMessage message) => !CommandHandler.CanRunStaffCmd(message.Author) && (FrequencyCount("<@", message.Content) > 4 || message.Content.Split(' ').Any(s => Regex.IsMatch(s) && IsBlockedContent(s)));
+    private static bool Check(SocketMessage message)
+    {
+        if (CommandHandler.CanRunStaffCmd(message.Author))
+            return false;
+        if (FrequencyCount("<@", message.Content) > 4)
+            return true;
+        if (message.Content.Replace(" ", string.Empty).Contains("discordgg") ||
+            message.Content.Split(' ').Any(s => Regex.IsMatch(s)))
+        {
+            foreach (string s in message.Content.Split(' '))
+            {
+                string decoded = string.Empty;
+                try
+                {
+                    decoded = Encoding.UTF8.GetString(Convert.FromBase64String(s));
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+
+                if (IsBlockedContent(s) || (!string.IsNullOrEmpty(decoded) && IsBlockedContent(decoded)))
+                    return true;
+            }
+        }
+
+        return false;
+    }
 
     private static bool IsBlockedContent(string url)
     {

@@ -16,7 +16,7 @@ public partial class TriggerCommands : InteractionModuleBase<SocketInteractionCo
     {
         if (message.Length > Program.Config.TriggerLengthLimit)
         {
-            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.TriggerLengthExceedsLimit, Program.Config.TriggerLengthLimit.ToString()));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.TriggerLengthExceedsLimit, Program.Config.TriggerLengthLimit.ToString()), ephemeral: true);
             return;
         }
 
@@ -28,6 +28,6 @@ public partial class TriggerCommands : InteractionModuleBase<SocketInteractionCo
         }
 
         DatabaseHandler.AddEntry(Context.User.Id, message, DatabaseType.Ping);
-        await RespondAsync($"Ping trigger {(flag ? "changed" : "added")}.");
+        await RespondAsync($"Ping trigger {(flag ? "changed" : "added")}.", ephemeral: true);
     }
 }

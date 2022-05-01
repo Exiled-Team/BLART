@@ -17,7 +17,7 @@ public partial class MuteCommands
     {
         if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
-            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;
         }
 

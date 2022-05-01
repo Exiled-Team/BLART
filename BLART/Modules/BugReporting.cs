@@ -15,7 +15,7 @@ public class BugReporting
 
     public static Dictionary<ulong, SocketThreadChannel> OpenThreads = new();
 
-    public static async Task LoadDatabaseEntries()
+    public static Task LoadDatabaseEntries()
     {
         foreach (SocketThreadChannel thread in BugReportChannel.Threads)
         {
@@ -25,5 +25,7 @@ public class BugReporting
                 if (messageId != 0)
                     OpenThreads.Add(messageId, thread);
         }
+
+        return Task.CompletedTask;
     }
 }

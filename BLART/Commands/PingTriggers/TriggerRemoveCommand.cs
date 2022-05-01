@@ -15,6 +15,6 @@ public partial class TriggerCommands
     public async Task DoRemoveTrigger()
     {
         DatabaseHandler.RemoveEntry(Context.User.Id, DatabaseType.Ping);
-        await RespondAsync("Ping trigger removed.");
+        await RespondAsync("Ping trigger removed.", ephemeral: true);
     }
 }

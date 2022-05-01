@@ -9,7 +9,7 @@ public class DatabaseHandler
 {
     private static string _connectionString = $"Data Source={Program.DatabaseFile}";
 
-    public static void Init(bool updateTables = false)
+    public static async Task Init(bool updateTables = false)
     {
         Log.Info(nameof(Init), $"Initializing database at {_connectionString}");
         if (!File.Exists(Program.DatabaseFile) || updateTables)
@@ -59,7 +59,7 @@ public class DatabaseHandler
             }
         }
 
-        BugReporting.LoadDatabaseEntries();
+        await BugReporting.LoadDatabaseEntries();
     }
 
     public static void AddEntry(ulong id, string description, DatabaseType type, ulong staffId = 0)

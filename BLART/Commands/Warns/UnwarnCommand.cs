@@ -18,7 +18,7 @@ public partial class WarningCommands : InteractionModuleBase<SocketInteractionCo
     {
         if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
-            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;
         }
 

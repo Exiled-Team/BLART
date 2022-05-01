@@ -46,10 +46,7 @@ public class Bot
             Log.Error(nameof(Init), e);
             return;
         }
-        
-        Log.Debug(nameof(Init), "Initializing Database..");
-        DatabaseHandler.Init(args.Contains("--updatetables"));
-        
+
         Log.Debug(nameof(Init), "Initializing Text Commands..");
         CommandService = new CommandService();
         CommandHandler = new CommandHandler(Client, CommandService);
@@ -85,6 +82,9 @@ public class Bot
         await SlashCommandHandler.InstallCommandsAsync();
         Client.Ready += async () =>
         {
+            Log.Debug(nameof(Init), "Initializing Database..");
+            await DatabaseHandler.Init(args.Contains("--updatetables"));
+
             int slashCommandsRegistered = (await InteractionService.RegisterCommandsToGuildAsync(Guild.Id)).Count;
 
             Log.Debug(nameof(Init), $"Registered {slashCommandsRegistered} interaction modules.");

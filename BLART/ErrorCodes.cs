@@ -16,4 +16,5 @@ public enum ErrorCodes
     InvalidMessageId,
     Unspecified,
     TriggerLengthExceedsLimit,
+    UnableToParseId,
 }

@@ -13,11 +13,18 @@ using Summary = Discord.Interactions.SummaryAttribute;
 public partial class BanCommand : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("info", "Gets information (if available) about a user's ban.")]
-    public async Task BanInfo([Summary("UserID", "The user ID to get info for.")] ulong userId)
+    public async Task BanInfo([Summary("UserID", "The user ID to get info for.")] string id)
     {
         if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
-            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
+            return;
+        }
+
+        if (!ulong.TryParse(id, out ulong userId))
+        {
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.UnableToParseId, id),
+                ephemeral: true);
             return;
         }
 

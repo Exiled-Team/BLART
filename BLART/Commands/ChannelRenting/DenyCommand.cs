@@ -20,7 +20,7 @@ public partial class RentCommands : InteractionModuleBase<SocketInteractionConte
         if (!ChannelRenting.IsRenting(Context.User))
         {
             await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied,
-                "You can only use this command while renting a channel."));
+                "You can only use this command while renting a channel."), ephemeral: true);
             return;
         }
 

@@ -13,7 +13,7 @@ using Summary = Discord.Interactions.SummaryAttribute;
 [Group("mute", "Commands for managing server mutes.")]
 public partial class MuteCommands : InteractionModuleBase<SocketInteractionContext>
 {
-    [SlashCommand("mute", "Mutes the indicated user for the given time period.")]
+    [SlashCommand("add", "Mutes the indicated user for the given time period.")]
     public async Task Mute(
         [Summary("User", "The user to mute.")] SocketUser user,
         [Summary("Duration", "The time duration")] string duration,
@@ -21,7 +21,7 @@ public partial class MuteCommands : InteractionModuleBase<SocketInteractionConte
     {
         if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
-            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;
         }
         

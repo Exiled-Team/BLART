@@ -7,16 +7,16 @@ using Discord.WebSocket;
 using Modules;
 using Services;
 
-public class BugReportModal
+public static class BugReportModal
 {
     private static TextInputBuilder ExiledVersion { get; } =
         new("Exiled Version", "exiled", placeholder: "5.2.0", required: true);
 
     private static TextInputBuilder Description { get; } =
-        new("Bug Description", "description", TextInputStyle.Paragraph, "A brief description of the encountered issue.", 10, 100, true);
+        new("Bug Description", "description", TextInputStyle.Paragraph, "A description of the issue.", 10, 100, true);
 
     private static TextInputBuilder Errors { get; } =
-        new("Console Errors", "errors", TextInputStyle.Paragraph, "A copy of any related exceptions or error messages in the server console, if any. If there are none, or you do not have access to the server console, leave this blank.", required: false);
+        new("Console Errors", "errors", TextInputStyle.Paragraph, "Related error messages in the console.", required: false);
 
     private static TextInputBuilder DuplicateChannelId { get; } =
         new("Original Channel ID", "channelId", required: true);
@@ -30,8 +30,9 @@ public class BugReportModal
         .WithButton(CancelButton)
         .Build();
 
-    public static Modal ReportModal => new ModalBuilder()
-        .WithTitle("Bug Report (EXILED bugs only, do not report PLUGIN bugs here.").WithCustomId("bugreport1")
+    public static Modal ReportModal { get; } = new ModalBuilder()
+        .WithTitle("Bug Report (EXILED bugs only)")
+        .WithCustomId("bugreport1")
         .AddTextInput(ExiledVersion)
         .AddTextInput(Description)
         .AddTextInput(Errors)
@@ -59,17 +60,22 @@ public class BugReportModal
     {
         if (modal.Data.CustomId != ReportModal.CustomId)
             return;
-        string exiledVersion = string.Empty;
-        string description = string.Empty;
-        string errors = string.Empty;
+        string exiledVersion = " ";
+        string description = " ";
+        string errors = "No Information Given";
 
         foreach (SocketMessageComponentData? component in modal.Data.Components)
+        {
+            if (string.IsNullOrEmpty(component.Value))
+                continue;
+
             if (component.CustomId == ExiledVersion.CustomId)
                 exiledVersion = component.Value;
             else if (component.CustomId == Description.CustomId)
                 description = component.Value;
             else if (component.CustomId == Errors.CustomId)
                 errors = component.Value;
+        }
 
         EmbedBuilder builder = new();
         builder.WithAuthor(modal.User);
@@ -88,7 +94,7 @@ public class BugReportModal
             Color.Red), ephemeral: true, components: ReportButtons);
     }
 
-    private static async Task HandleClaim(SocketMessageComponent component, SocketUserMessage message)
+    private static async Task HandleClaim(SocketMessageComponent component, IUserMessage message)
     {
         IEmbed embed = message.Embeds.First();
         await message.ModifyAsync(x =>
@@ -99,6 +105,10 @@ public class BugReportModal
             builder.WithCurrentTimestamp();
             builder.WithFooter(embed.Footer!.Value.Text);
             builder.WithColor(Color.Orange);
+            builder.WithAuthor(new EmbedAuthorBuilder()
+            {
+                Name = embed.Author?.Name ?? $"{component.User.Username}#{component.User.Discriminator}"
+            });
             foreach (EmbedField field in embed.Fields)
                 builder.Fields.Add(new EmbedFieldBuilder
                 {
@@ -109,10 +119,14 @@ public class BugReportModal
             x.Embed = builder.Build();
         });
 
+        await BugReporting.OpenThreads[message.Id].SendMessageAsync(embed: await EmbedBuilderService.CreateBasicEmbed(
+            "Fix in progress",
+            $"{component.User.Username} has marked this bug as `Fix in Progress`. Further testing results etc should be directed to them.",
+            Color.Gold));
         await component.RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Bug Report Claim", "The bug has been claimed by you.", Color.Green), ephemeral: true);
     }
 
-    private static async Task HandleSolve(SocketMessageComponent component, SocketUserMessage message)
+    private static async Task HandleSolve(SocketMessageComponent component, IUserMessage message)
     {
         IEmbed embed = message.Embeds.First();
         await message?.ModifyAsync(x =>
@@ -123,6 +137,10 @@ public class BugReportModal
             builder.WithCurrentTimestamp();
             builder.WithFooter(embed.Footer!.Value.Text);
             builder.WithColor(Color.Gold);
+            builder.WithAuthor(new EmbedAuthorBuilder()
+            {
+                Name = embed.Author?.Name ?? $"{component.User.Username}#{component.User.Discriminator}"
+            });
             foreach (EmbedField field in embed.Fields)
                 builder.Fields.Add(new EmbedFieldBuilder
                 {
@@ -134,17 +152,23 @@ public class BugReportModal
         })!;
         
         await BugReporting.OpenThreads[message.Id].ModifyAsync(x => x.Archived = true);
+        await BugReporting.OpenThreads[message.Id].SendMessageAsync(
+            embed: await EmbedBuilderService.CreateBasicEmbed("Bug Solved",
+                $"This bug has been marked solved by {component.User.Username}.", Color.Gold));
         DatabaseHandler.RemoveEntry(message.Id, DatabaseType.BugReport);
+        await component.RespondAsync(
+            embed: await EmbedBuilderService.CreateBasicEmbed("Bug Solving", "The bug has been marked as solved.",
+                Color.Green), ephemeral: true);
     }
 
-    private static async Task HandleInvalid(SocketMessageComponent component, SocketUserMessage message)
+    private static async Task HandleInvalid(SocketMessageComponent component, IUserMessage message)
     {
         await BugReporting.OpenThreads[message.Id].DeleteAsync();
         await message.DeleteAsync();
         await component.RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Bug Report Invalidation", "The given bug report has been deleted.", Color.Red), ephemeral: true);
     }
 
-    private static async Task HandleDuplicate(SocketMessageComponent component, SocketUserMessage message)
+    private static async Task HandleDuplicate(SocketMessageComponent component, IUserMessage message)
     {
         if (!await CheckPermissions(component, message))
             return;
@@ -152,7 +176,7 @@ public class BugReportModal
         await component.RespondWithModalAsync(DuplicateModal(message.Id));
     }
 
-    private static async Task HandleDuplicate(SocketModal modal, SocketUserMessage message, ulong originalId)
+    private static async Task HandleDuplicate(SocketModal modal, IUserMessage message, ulong originalId)
     {
         SocketThreadChannel duplicateThread = BugReporting.OpenThreads[message.Id];
         SocketThreadChannel originalThread = BugReporting.OpenThreads[originalId];
@@ -175,14 +199,14 @@ public class BugReportModal
     {
         EmbedBuilder builder = BugReporting.BugReports[component.User];
 
-        RestUserMessage message = await BugReporting.BugReportChannel.SendMessageAsync(embed: builder.Build());
+        IUserMessage message = await BugReporting.BugReportChannel.SendMessageAsync(embed: builder.Build());
         await message.ModifyAsync(x =>
         {
             x.Components = StaffButtons(message.Id);
         });
 
         BugReporting.BugReports.Remove(component.User);
-        BugReporting.OpenThreads.Add(message.Id, await BugReporting.BugReportChannel.CreateThreadAsync(builder.Description[..23], message: message, autoArchiveDuration: ThreadArchiveDuration.ThreeDays, invitable: true));
+        BugReporting.OpenThreads.Add(message.Id, await BugReporting.BugReportChannel.CreateThreadAsync(builder.Description.Length > 23 ? builder.Description[..23] : builder.Description, message: message, autoArchiveDuration: ThreadArchiveDuration.ThreeDays, invitable: true));
         DatabaseHandler.AddEntry(message.Id, BugReporting.OpenThreads[message.Id].Id.ToString(), DatabaseType.BugReport);
         await component.RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Bug Report Confirmation", "Your bug has been submitted. Don't forget to add any screenshots/videos/logfiles to the thread to provide additional information.", Color.Green), ephemeral: true);
     }
@@ -193,9 +217,9 @@ public class BugReportModal
         await component.RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Bug Report Cancelling", "Your bug report has been cancelled.", Color.Green), ephemeral: true);
     }
 
-    private static async Task<bool> CheckPermissions(SocketInteraction interaction, SocketUserMessage message)
+    private static async Task<bool> CheckPermissions(SocketInteraction interaction, IUserMessage message)
     {
-        if ($"{interaction.User.Username}#{interaction.User.Discriminator}" != message.Embeds.First().Author!.Value.Name && !CommandHandler.CanRunStaffCmd(interaction.User))
+        if ($"{interaction.User.Username}#{interaction.User.Discriminator}" != message.Embeds.First().Author?.Name && !CommandHandler.CanRunStaffCmd(interaction.User))
         {
             await interaction.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied,
                 "Only the bug submitter, Discord Staff and EXILED Developers can modify existing bug reports."), ephemeral: true);
@@ -211,7 +235,7 @@ public class BugReportModal
             await HandleReport(modal);
         else if (modal.Data.CustomId.Contains('|') && modal.Data.CustomId.Contains(DuplicateModal(0).CustomId.Replace("|0", string.Empty)))
         {
-            SocketUserMessage message = (SocketUserMessage) await modal.Channel.GetMessageAsync(ulong.Parse(modal.Data.CustomId.AsSpan(modal.Data.CustomId.IndexOf('|'), 18)));
+            IUserMessage message = (IUserMessage) await modal.Channel.GetMessageAsync(ulong.Parse(modal.Data.CustomId.AsSpan(modal.Data.CustomId.IndexOf('|'), 18)));
             if (message is null)
             {
                 await modal.RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Bug Report Duplicate Marking", "Unable to locate the message of the modal. Blame discord devs for being dipshits.", Color.Red), ephemeral: true);
@@ -249,18 +273,27 @@ public class BugReportModal
 
         if (component.Data.CustomId.Contains('|'))
         {
-            if (!ulong.TryParse(component.Data.CustomId.AsSpan(component.Data.CustomId.IndexOf('|'), 18), out messageId))
+            try
             {
-                Log.Error(nameof(HandleModal),
-                    $"Unable to parse Message ID from {component.Data.CustomId}\n{component.Data.CustomId.Substring(component.Data.CustomId.IndexOf('|', 18))}");
-                await component.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.Unspecified),
-                    ephemeral: true);
-                return;
+                if (!ulong.TryParse(component.Data.CustomId.AsSpan(component.Data.CustomId.IndexOf('|') + 1, 18), out messageId))
+                {
+                    Log.Error(nameof(HandleModal),
+                        $"Unable to parse Message ID from {component.Data.CustomId}\n{component.Data.CustomId.Substring(component.Data.CustomId.IndexOf('|', 18))}");
+                    await component.RespondAsync(
+                        embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.Unspecified),
+                        ephemeral: true);
+                    return;
+                }
+            }
+            catch (Exception)
+            {
+                await component.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.Unspecified), ephemeral: true);
             }
         }
 
-        SocketUserMessage message = (SocketUserMessage)await component.Channel.GetMessageAsync(messageId);
-        string customId = component.Data.CustomId.Replace($":{messageId}", string.Empty);
+        Log.Debug(nameof(HandleButton), $"Got message ID: {messageId}");
+        IUserMessage message = (IUserMessage)await component.Channel.GetMessageAsync(messageId);
+        string customId = component.Data.CustomId.Replace($"|{messageId}", string.Empty);
         string claimId = ClaimButton(0).CustomId.Replace("|0", string.Empty);
         string solveId = SolveButton(0).CustomId.Replace("|0", string.Empty);
         string invalidId = InvalidButton(0).CustomId.Replace("|0", string.Empty);

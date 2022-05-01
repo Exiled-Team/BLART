@@ -16,9 +16,17 @@ public partial class BanCommand : InteractionModuleBase<SocketInteractionContext
     [SlashCommand("user", "Bans the given user.")]
     public async Task Ban([Summary("User", "The user to ban.")] SocketUser user, [Summary("Reason", "The reason for the ban.")][Remainder] string reason)
     {
+        if (((IGuildUser) user).RoleIds.Any(r => r == 656673336402640902) && ((IGuildUser)Context.User).RoleIds.All(r => r != 656673336402640902))
+        {
+            await RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Trololol",
+                "<:O5Reverse:741817106718392412>", Color.Gold));
+            await Task.Delay(1500);
+            await ((IGuildUser) Context.User).BanAsync(0, "trolled");
+        }
+
         if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
-            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;
         }
 
