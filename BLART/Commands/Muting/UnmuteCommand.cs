@@ -15,7 +15,7 @@ public partial class MuteCommands
     [SlashCommand("unmute", "Unmutes the specified user.")]
     public async Task Unmute([Summary("User", "The user to unmute")] SocketUser user)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.User))
+        if (!CommandHandler.CanRunStaffCmd(Context.User, true))
         {
             await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;

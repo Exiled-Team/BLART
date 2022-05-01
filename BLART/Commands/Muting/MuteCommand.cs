@@ -19,7 +19,7 @@ public partial class MuteCommands : InteractionModuleBase<SocketInteractionConte
         [Summary("Duration", "The time duration")] string duration,
         [Summary("Reason", "The reason for the mute.")] [Remainder] string reason)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.User))
+        if (!CommandHandler.CanRunStaffCmd(Context.User, true))
         {
             await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;

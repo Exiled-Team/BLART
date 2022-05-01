@@ -19,7 +19,7 @@ public partial class EmbedCommands : InteractionModuleBase<SocketInteractionCont
         [Summary("Color", "The color to use.")] string color,
         [Summary("Contents", "The title and contents to use.")] [Remainder] string contents)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.User))
+        if (!CommandHandler.CanRunStaffCmd(Context.User, false))
         {
             await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;

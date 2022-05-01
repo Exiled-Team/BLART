@@ -15,7 +15,7 @@ public partial class BanCommand : InteractionModuleBase<SocketInteractionContext
     [SlashCommand("info", "Gets information (if available) about a user's ban.")]
     public async Task BanInfo([Summary("UserID", "The user ID to get info for.")] string id)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.User))
+        if (!CommandHandler.CanRunStaffCmd(Context.User, true))
         {
             await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;

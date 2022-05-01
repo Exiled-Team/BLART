@@ -15,7 +15,7 @@ public partial class RedRoleCommands : InteractionModuleBase<SocketInteractionCo
     [SlashCommand("give", "Gives the specified user the red role.")]
     public async Task Give([Summary("User", "The user to give the role to.")] SocketUser user, [Summary("Reason", "The reason why they are getting the role.")][Remainder] string reason)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.User))
+        if (!CommandHandler.CanRunStaffCmd(Context.User, true))
         {
             await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;

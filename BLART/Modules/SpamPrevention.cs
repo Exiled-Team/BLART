@@ -54,7 +54,7 @@ public class SpamPrevention
 
     private static bool Check(SocketUser user, bool skipSpam)
     {
-        if (user.IsBot || CommandHandler.CanRunStaffCmd(user) || skipSpam)
+        if (user.IsBot || CommandHandler.CanRunStaffCmd(user, false) || skipSpam)
             return false;
         
         if (!SpamTracker.ContainsKey(user))
@@ -74,7 +74,7 @@ public class SpamPrevention
 
     private static bool Check(SocketMessage message)
     {
-        if (CommandHandler.CanRunStaffCmd(message.Author))
+        if (CommandHandler.CanRunStaffCmd(message.Author, false))
             return false;
         if (FrequencyCount("<@", message.Content) > 4)
             return true;

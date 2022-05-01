@@ -14,7 +14,7 @@ public partial class RedRoleCommands
     [SlashCommand("remove", "Removes the users red role.")]
     public async Task Remove([Summary("User", "The user who's red role is to be removed.")] SocketUser user)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.User))
+        if (!CommandHandler.CanRunStaffCmd(Context.User, true))
         {
             await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;
