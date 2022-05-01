@@ -22,16 +22,21 @@ public class BugReporting
         {
             Log.Debug(nameof(LoadDatabaseEntries), $"Getting message ID for thread {thread.Id}");
             ulong messageId = DatabaseHandler.GetMessageId(thread.Id);
+            if (messageId == 0)
+            {
+                DatabaseHandler.RemoveEntry(thread.Id, DatabaseType.BugReport);
+                continue;
+            }
+
             IUserMessage message = (IUserMessage) await BugReportChannel.GetMessageAsync(messageId);
             if (message is null)
             {
                 DatabaseHandler.RemoveEntry(messageId, DatabaseType.BugReport);
-                return;
+                continue;
             }
 
             Log.Debug(nameof(LoadDatabaseEntries), $"Messaged ID for {thread.Id} found: {messageId}");
-            if (messageId != 0) 
-                OpenThreads.Add(messageId, thread);
+            OpenThreads.Add(messageId, thread);
 
             Log.Debug(nameof(LoadDatabaseEntries), "Adding context buttons to old message.");
             if (message.Components.Count == 0)
