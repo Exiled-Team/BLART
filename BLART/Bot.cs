@@ -92,7 +92,9 @@ public class Bot
 
         Log.Debug(nameof(Init), "Registering Modal handlers..");
         Client.ModalSubmitted += BugReportModal.HandleModal;
+        Client.ModalSubmitted += EmbedModal.HandleModal;
         Client.ButtonExecuted += BugReportModal.HandleButton;
+        Client.ButtonExecuted += EmbedModal.HandleButton;
         
         Log.Debug(nameof(Init), "Logging in..");
         await Client.LoginAsync(TokenType.Bot, Program.Config.BotToken);

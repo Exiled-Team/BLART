@@ -38,22 +38,22 @@ public static class BugReportModal
         .AddTextInput(Errors)
         .Build();
 
+    private static ButtonBuilder ClaimButton { get; } = new("Claim", "claim", ButtonStyle.Primary);
+    private static ButtonBuilder SolveButton { get; } = new("Solved", "solve", ButtonStyle.Success);
+    private static ButtonBuilder InvalidButton { get; } = new("Invalid", "invalid", ButtonStyle.Danger);
+    private static ButtonBuilder DuplicateButton { get; } = new("Duplicate", "duplicate", ButtonStyle.Secondary);
+
+    public static MessageComponent StaffButtons { get; } = new ComponentBuilder()
+        .WithButton(ClaimButton)
+        .WithButton(SolveButton)
+        .WithButton(InvalidButton)
+        .WithButton(DuplicateButton)
+        .Build();
+
     private static Modal DuplicateModal(ulong messageId) => new ModalBuilder()
         .WithTitle("Duplicate Bug Linking")
         .WithCustomId($"bugreport2|{messageId}")
         .AddTextInput(DuplicateChannelId)
-        .Build();
-
-    private static ButtonBuilder ClaimButton(ulong messageId) => new("Claim", $"claim|{messageId}", ButtonStyle.Primary);
-    private static ButtonBuilder SolveButton(ulong messageId) => new("Solved", $"solve|{messageId}", ButtonStyle.Success);
-    private static ButtonBuilder InvalidButton(ulong messageId) => new("Invalid", $"invalid|{messageId}", ButtonStyle.Danger);
-    private static ButtonBuilder DuplicateButton(ulong messageId) => new("Duplicate", $"duplicate|{messageId}", ButtonStyle.Secondary);
-
-    public static MessageComponent StaffButtons(ulong messageId) => new ComponentBuilder()
-        .WithButton(ClaimButton(messageId))
-        .WithButton(SolveButton(messageId))
-        .WithButton(InvalidButton(messageId))
-        .WithButton(DuplicateButton(messageId))
         .Build();
 
     private static async Task HandleReport(SocketModal modal)
@@ -96,6 +96,9 @@ public static class BugReportModal
 
     private static async Task HandleClaim(SocketMessageComponent component, IUserMessage message)
     {
+        if (!await CheckPermissions(component, message))
+            return;
+        
         IEmbed embed = message.Embeds.First();
         await message.ModifyAsync(x =>
         {
@@ -128,6 +131,9 @@ public static class BugReportModal
 
     private static async Task HandleSolve(SocketMessageComponent component, IUserMessage message)
     {
+        if (!await CheckPermissions(component, message))
+            return;
+        
         IEmbed embed = message.Embeds.First();
         await message?.ModifyAsync(x =>
         {
@@ -163,6 +169,9 @@ public static class BugReportModal
 
     private static async Task HandleInvalid(SocketMessageComponent component, IUserMessage message)
     {
+        if (!await CheckPermissions(component, message))
+            return;
+        
         await BugReporting.OpenThreads[message.Id].DeleteAsync();
         await message.DeleteAsync();
         await component.RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Bug Report Invalidation", "The given bug report has been deleted.", Color.Red), ephemeral: true);
@@ -202,7 +211,7 @@ public static class BugReportModal
         IUserMessage message = await BugReporting.BugReportChannel.SendMessageAsync(embed: builder.Build());
         await message.ModifyAsync(x =>
         {
-            x.Components = StaffButtons(message.Id);
+            x.Components = StaffButtons;
         });
 
         BugReporting.BugReports.Remove(component.User);
@@ -257,6 +266,8 @@ public static class BugReportModal
 
     public static async Task HandleButton(SocketMessageComponent component)
     {
+        IUserMessage message = component.Message;
+
         if (component.Data.CustomId == ConfirmButton.CustomId)
         {
             await HandleConfirm(component);
@@ -269,46 +280,17 @@ public static class BugReportModal
             return;
         }
 
-        ulong messageId = 0;
-
-        if (component.Data.CustomId.Contains('|'))
-        {
-            try
-            {
-                if (!ulong.TryParse(component.Data.CustomId.AsSpan(component.Data.CustomId.IndexOf('|') + 1, 18), out messageId))
-                {
-                    Log.Error(nameof(HandleModal),
-                        $"Unable to parse Message ID from {component.Data.CustomId}\n{component.Data.CustomId.Substring(component.Data.CustomId.IndexOf('|', 18))}");
-                    await component.RespondAsync(
-                        embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.Unspecified),
-                        ephemeral: true);
-                    return;
-                }
-            }
-            catch (Exception)
-            {
-                await component.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.Unspecified), ephemeral: true);
-            }
-        }
-
-        Log.Debug(nameof(HandleButton), $"Got message ID: {messageId}");
-        IUserMessage message = (IUserMessage)await component.Channel.GetMessageAsync(messageId);
-        string customId = component.Data.CustomId.Replace($"|{messageId}", string.Empty);
-        string claimId = ClaimButton(0).CustomId.Replace("|0", string.Empty);
-        string solveId = SolveButton(0).CustomId.Replace("|0", string.Empty);
-        string invalidId = InvalidButton(0).CustomId.Replace("|0", string.Empty);
-        string duplicateId = DuplicateButton(0).CustomId.Replace("|0", string.Empty);
-
-        if (!await CheckPermissions(component, message))
-            return;
-
-        if (customId == claimId)
+        if (component.Data.CustomId == ConfirmButton.CustomId)
+            await HandleConfirm(component);
+        else if (component.Data.CustomId == CancelButton.CustomId) 
+            await HandleCancel(component);
+        else if (component.Data.CustomId == ClaimButton.CustomId)
             await HandleClaim(component, message);
-        else if (customId == solveId)
+        else if (component.Data.CustomId == SolveButton.CustomId)
             await HandleSolve(component, message);
-        else if (customId == invalidId)
+        else if (component.Data.CustomId == InvalidButton.CustomId)
             await HandleInvalid(component, message);
-        else if (customId == duplicateId)
+        else if (component.Data.CustomId == DuplicateButton.CustomId) 
             await HandleDuplicate(component, message);
     }
 }

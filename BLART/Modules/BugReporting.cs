@@ -42,7 +42,7 @@ public class BugReporting
             if (message.Components.Count == 0)
                 await message.ModifyAsync(x =>
                 {
-                    x.Components = BugReportModal.StaffButtons(messageId);
+                    x.Components = BugReportModal.StaffButtons;
                 });
         }
     }
