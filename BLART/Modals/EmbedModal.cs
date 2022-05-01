@@ -18,12 +18,6 @@ public static class EmbedModal
     private static TextInputBuilder Body1 { get; } = new("Contents", "content1", TextInputStyle.Paragraph,
         "The contents of the embed.", required: true);
 
-    private static TextInputBuilder Body2 { get; } = new("Contents", "content2", TextInputStyle.Paragraph,
-        "Additional content (if needed)", required: false);
-
-    private static TextInputBuilder Body3 { get; } = new("Contents", "content3", TextInputStyle.Paragraph,
-        "Additional content (if needed)", required: false);
-
     public static ButtonBuilder EditButton { get; } = new("Edit", "edit", ButtonStyle.Primary);
 
     public static Modal Embed(ulong channelId) =>
@@ -33,8 +27,6 @@ public static class EmbedModal
             .AddTextInput(Title)
             .AddTextInput(Color)
             .AddTextInput(Body1)
-            .AddTextInput(Body2)
-            .AddTextInput(Body3)
             .Build();
 
     public static Modal EditEmbedModal(ulong messageId) =>
@@ -44,8 +36,6 @@ public static class EmbedModal
             .AddTextInput(Title)
             .AddTextInput(Color)
             .AddTextInput(Body1)
-            .AddTextInput(Body2)
-            .AddTextInput(Body3)
             .Build();
 
     private static SocketTextChannel? GetChannel(SocketModal modal)
@@ -69,7 +59,7 @@ public static class EmbedModal
         {
             string title = string.Empty;
             string colorRaw = string.Empty;
-            List<string> contents = new();
+            string contents = string.Empty;
 
             foreach (SocketMessageComponentData? input in modal.Data.Components)
             {
@@ -78,11 +68,7 @@ public static class EmbedModal
                 else if (input.CustomId == Color.CustomId)
                     colorRaw = input.Value;
                 else if (input.CustomId == Body1.CustomId)
-                    contents.Add(input.Value);
-                else if (input.CustomId == Body2.CustomId && !string.IsNullOrEmpty(input.Value))
-                    contents.Add(input.Value);
-                else if (input.CustomId == Body3.CustomId && !string.IsNullOrEmpty(input.Value))
-                    contents.Add(input.Value);
+                    contents = input.Value;
             }
 
             Color color;
@@ -107,7 +93,7 @@ public static class EmbedModal
             builder.WithFooter(EmbedBuilderService.Footer);
             builder.WithCurrentTimestamp();
             builder.WithColor(color);
-            builder.WithDescription(string.Concat(contents));
+            builder.WithDescription(contents);
 
             return builder.Build();
         }
