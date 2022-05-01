@@ -90,7 +90,7 @@ public static class BugReportModal
         BugReporting.BugReports.TryAdd(modal.User, builder);
 
         await modal.RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Bug Report",
-            "Your bug report has been saved.\nPlease note that bug reports should only be sent for **EXILED** issues, and not **PLUGIN** bugs.\nIf you are certain this issue is not being caused by a plugin instead of EXILED, you can use `/bug confirm` to send the bug report.\nTo cancel your report before submitting it, use `/bug cancel`.",
+            "Your bug report has been saved.\nPlease note that bug reports should only be sent for **EXILED** issues, and not **PLUGIN** bugs.\nIf you are certain this issue is not being caused by a plugin instead of EXILED, you can click `confirm` to send the bug report.\nTo cancel your report before submitting it, click `cancel`.",
             Color.Red), ephemeral: true, components: ReportButtons);
     }
 
