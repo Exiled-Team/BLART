@@ -11,7 +11,7 @@ public class SyncRolesCommand : InteractionModuleBase<SocketInteractionContext>
     [SlashCommand("syncroles", "Re-adds missing roles to self-assigned roles.")]
     public async Task SyncRoles()
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.User, true))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
             await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied),
                 ephemeral: true);

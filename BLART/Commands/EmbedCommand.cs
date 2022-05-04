@@ -14,7 +14,7 @@ public partial class EmbedCommands : InteractionModuleBase<SocketInteractionCont
     [SlashCommand("send", "Sends an embeded message into a specific channel.")]
     public async Task Embed([Summary("Channel", "The channel to send the embed to.")] ITextChannel channel)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.User, false))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
             await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;

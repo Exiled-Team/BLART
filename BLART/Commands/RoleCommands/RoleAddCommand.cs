@@ -10,7 +10,7 @@ public partial class RoleCommands : InteractionModuleBase<SocketInteractionConte
     [SlashCommand("add", "Adds a role as a self-assignable role.")]
     public async Task AddRole([Summary("Role", "The role to add")] IRole role)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.User, true))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
             await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             

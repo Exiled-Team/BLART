@@ -17,7 +17,7 @@ public partial class WarningCommands
         [Summary("User", "The user to warn")] SocketUser user,
         [Summary("Reason", "The reason for the warning.")] [Remainder] string reason)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.User, true))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
             await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;

@@ -15,7 +15,7 @@ public partial class BanCommand : InteractionModuleBase<SocketInteractionContext
     [SlashCommand("unban", "Unbans the given user ID.")]
     public async Task Unban([Summary("UserID", "The user ID to unban")] string id)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.User, true))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
             await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;

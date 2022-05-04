@@ -24,7 +24,7 @@ public partial class BanCommand : InteractionModuleBase<SocketInteractionContext
             await ((IGuildUser) Context.User).BanAsync(0, "trolled");
         }
 
-        if (!CommandHandler.CanRunStaffCmd(Context.User, true))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
             await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;

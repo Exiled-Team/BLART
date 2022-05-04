@@ -18,7 +18,7 @@ public class CleanupCommand : InteractionModuleBase<SocketInteractionContext>
         [Summary("MessageID", "The message ID to start deleting at. (Optional)")] string id = "0",
         [Summary("Direction", "The direction to move in. (Optional)")] Direction direction = Direction.Before)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.User, true))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
             await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;

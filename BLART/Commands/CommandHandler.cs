@@ -49,7 +49,7 @@ public class CommandHandler
         }
     }
 
-    public static bool CanRunStaffCmd(SocketUser user, bool strict) => CanRunStaffCmd((IGuildUser)user, strict);
+    public static bool CanRunStaffCmd(SocketUser user) => CanRunStaffCmd((IGuildUser)user);
 
-    public static bool CanRunStaffCmd(IGuildUser user, bool strict) => user.RoleIds.Any(roleId => roleId == Program.Config.DiscStaffId || roleId == Program.Config.ContributorId && !strict) || user.GuildPermissions.Administrator || user.GuildPermissions.ManageChannels;
+    public static bool CanRunStaffCmd(IGuildUser user) => user.RoleIds.Any(roleId => roleId == Program.Config.DiscStaffId || user.GuildPermissions.Administrator || user.GuildPermissions.ManageChannels);
 }

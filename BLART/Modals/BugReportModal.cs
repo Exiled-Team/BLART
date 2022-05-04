@@ -228,7 +228,7 @@ public static class BugReportModal
 
     private static async Task<bool> CheckPermissions(SocketInteraction interaction, IUserMessage message)
     {
-        if ($"{interaction.User.Username}#{interaction.User.Discriminator}" != message.Embeds.First().Author?.Name && !CommandHandler.CanRunStaffCmd(interaction.User, false))
+        if ($"{interaction.User.Username}#{interaction.User.Discriminator}" != message.Embeds.First().Author?.Name && !CommandHandler.CanRunStaffCmd(interaction.User))
         {
             await interaction.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied,
                 "Only the bug submitter, Discord Staff and EXILED Developers can modify existing bug reports."), ephemeral: true);

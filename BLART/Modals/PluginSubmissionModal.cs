@@ -79,7 +79,7 @@ public static class PluginSubmissionModal
 
     private static async Task<bool> CanUse(SocketMessageComponent component, bool strict = false)
     {
-        if (!CommandHandler.CanRunStaffCmd(component.User, strict) && (!strict && component.Message.Embeds.FirstOrDefault()?.Author?.Name != $"{component.User.Username}#{component.User.Discriminator}"))
+        if (!CommandHandler.CanRunStaffCmd(component.User) && (!strict && component.Message.Embeds.FirstOrDefault()?.Author?.Name != $"{component.User.Username}#{component.User.Discriminator}"))
         {
             await component.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             
@@ -141,15 +141,35 @@ public static class PluginSubmissionModal
         
         IUserMessage? message = (IUserMessage)await modal.Channel.GetMessageAsync(messageId);
         Embed? embed = (Embed)message.Embeds.FirstOrDefault()!;
+        SocketCategoryChannel? category = Bot.Instance.Guild.GetCategoryChannel(categoryId);
+        if (category is null)
+        {
+            await modal.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.InvalidChannelId,
+                "The category ID is invalid."));
+            return;
+        }
+
+        IGuildUser? user = (await Bot.Instance.Guild.GetUsersAsync().FlattenAsync()).FirstOrDefault(u => $"{u.Username}#{u.Discriminator}" == embed.Author?.Name);
+        
+        
         RestTextChannel channel = await Bot.Instance.Guild.CreateTextChannelAsync(embed.Title);
+        await channel.AddPermissionOverwriteAsync(Bot.Instance.Guild.EveryoneRole, new OverwritePermissions(sendMessages: PermValue.Deny));
+        
+        if (user is not null)
+            await channel.AddPermissionOverwriteAsync(user, new OverwritePermissions(manageChannel: PermValue.Allow, sendMessages: PermValue.Allow, manageWebhooks: PermValue.Allow));
+        
         IUserMessage newMessage = await channel.SendMessageAsync(embed: embed);
         RestRole? role = await Bot.Instance.Guild.CreateRoleAsync(embed.Title);
         
-        await channel.ModifyAsync(x => x.CategoryId = categoryId);
+        await channel.ModifyAsync(x =>
+        {
+            x.CategoryId = category.Id;
+        });
         await newMessage.ModifyAsync(x => x.Components = new ComponentBuilder().WithButton(EditButton).WithButton(DeleteButton).Build());
         await message.DeleteAsync();
         DatabaseHandler.AddEntry(role.Id, string.Empty, DatabaseType.SelfRole);
-        await modal.RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Plugin Accepted", "The plugin has been accepted.", Color.Green), ephemeral: true);
+        
+        await modal.FollowupAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Plugin Accepted", "The plugin has been accepted.", Color.Green), ephemeral: true);
     }
     
     public static async Task HandleButton(SocketMessageComponent component)
@@ -169,7 +189,9 @@ public static class PluginSubmissionModal
         }
         else if (component.Data.CustomId == AcceptButton.CustomId)
         {
-            if (await CanUse(component, true))
+            if (((IGuildUser) component.User).RoleIds.All(r => r != 656673336402640902))
+                await component.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
+            else
                 await component.RespondWithModalAsync(SelectCategory(component.Message.Id));
         }
     }

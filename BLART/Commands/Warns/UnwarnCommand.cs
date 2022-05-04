@@ -16,7 +16,7 @@ public partial class WarningCommands : InteractionModuleBase<SocketInteractionCo
     [SlashCommand("remove", "Removes the indicated warning.")]
     public async Task Unwarn([Summary("WarningID", "The ID number of the warning to remove.")] int id)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.User, true))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
             await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;

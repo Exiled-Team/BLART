@@ -15,7 +15,7 @@ public partial class WarningCommands
     [SlashCommand("info", "Gives information about a users warning(s), if any.")]
     public async Task WarnInfo([Summary("User", "The user to get info for.")] SocketUser user)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.User, true))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
             await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;

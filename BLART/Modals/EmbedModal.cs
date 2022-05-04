@@ -99,7 +99,7 @@ public static class EmbedModal
     {
         if (component.Data.CustomId == EditButton.CustomId)
         {
-            if (!CommandHandler.CanRunStaffCmd(component.User, false) && component.Message.Embeds.FirstOrDefault()?.Author?.Name != $"{component.User.Username}#{component.User.Discriminator}")
+            if (!CommandHandler.CanRunStaffCmd(component.User) && component.Message.Embeds.FirstOrDefault()?.Author?.Name != $"{component.User.Username}#{component.User.Discriminator}")
             {
                 await component.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
                 return;

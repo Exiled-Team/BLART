@@ -14,7 +14,7 @@ public partial class WarningCommands
     [SlashCommand("infoid", "Gets warning info by a user's discord ID.")]
     public async Task WarnInfo([Summary("UserID", "The UserID of the user.")] string id)
     {
-        if (!CommandHandler.CanRunStaffCmd(Context.User, true))
+        if (!CommandHandler.CanRunStaffCmd(Context.User))
         {
             await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;
