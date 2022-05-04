@@ -81,7 +81,7 @@ public static class PluginSubmissionModal
     {
         if (!CommandHandler.CanRunStaffCmd(component.User) && (!strict && component.Message.Embeds.FirstOrDefault()?.Author?.Name != $"{component.User.Username}#{component.User.Discriminator}"))
         {
-            await component.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
+            await component.RespondAsync($"{component.User.Mention}", embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             
             return false;
         }
@@ -132,7 +132,7 @@ public static class PluginSubmissionModal
 
         if (!ulong.TryParse(modal.Data.Components.FirstOrDefault()?.Value, out ulong categoryId))
         {
-            await modal.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.UnableToParseId, "Unable to parse category ID given."));
+            await modal.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.UnableToParseId, "Unable to parse category ID given."), ephemeral: true);
             
             return;
         }
@@ -145,7 +145,7 @@ public static class PluginSubmissionModal
         if (category is null)
         {
             await modal.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.InvalidChannelId,
-                "The category ID is invalid."));
+                "The category ID is invalid."), ephemeral: true);
             return;
         }
 
@@ -190,7 +190,7 @@ public static class PluginSubmissionModal
         else if (component.Data.CustomId == AcceptButton.CustomId)
         {
             if (((IGuildUser) component.User).RoleIds.All(r => r != 656673336402640902))
-                await component.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
+                await component.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             else
                 await component.RespondWithModalAsync(SelectCategory(component.Message.Id));
         }

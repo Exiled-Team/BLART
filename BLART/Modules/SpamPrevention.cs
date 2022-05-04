@@ -136,4 +136,38 @@ public class SpamPrevention
 
         return result;
     }
+
+    public static async Task HandleInteraction(SocketInteraction message)
+    {
+        if (Check(message.User, false))
+        {
+            await Logging.SendLogMessage($"User auto-{(RaidProtection.Check(message.User) ? "banned" : "muted")}",
+                $"{message.User.Username} has been auto-moderated for spamming.", Color.Red);
+
+            if (RaidProtection.Check(message.User))
+                await ((IGuildUser) message.User).BanAsync(7, "Raid protection triggered (spamming/linking)");
+            else
+            {
+                await ((IGuildUser) message.User).SetTimeOutAsync(TimeSpan.FromHours(6));
+                int count = 0;
+                foreach (SocketTextChannel channel in Bot.Instance.Guild.TextChannels)
+                {
+                    foreach (IMessage msg in await channel.GetMessagesAsync(20).FlattenAsync())
+                    {
+                        if (msg.Author.Id == message.User.Id && (DateTime.UtcNow - msg.Timestamp).TotalMinutes < 5)
+                        {
+                            await msg.DeleteAsync();
+                            count++;
+
+                            if (count > 20)
+                                break;
+                        }
+                    }
+
+                    if (count > 20)
+                        break;
+                }
+            }
+        }
+    }
 }

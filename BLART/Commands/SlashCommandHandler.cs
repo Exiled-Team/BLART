@@ -4,6 +4,7 @@ using System.Reflection;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Modules;
 using Services;
 
 public class SlashCommandHandler
@@ -32,6 +33,7 @@ public class SlashCommandHandler
         {
             SocketInteractionContext context = new(client, interaction);
             await service.ExecuteCommandAsync(context, null);
+            await SpamPrevention.HandleInteraction(interaction);
         }
         catch (Exception e)
         {
