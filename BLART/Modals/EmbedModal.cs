@@ -54,9 +54,6 @@ public static class EmbedModal
 
     private static async Task<Embed?> ConstructEmbed(SocketModal modal)
     {
-        if (modal.Data.CustomId.Contains(Embed(0).CustomId.Replace("|0", string.Empty)) ||
-            modal.Data.CustomId.Contains(EditEmbedModal(0).CustomId.Replace("|0", string.Empty)))
-        {
             string title = string.Empty;
             string colorRaw = string.Empty;
             string contents = string.Empty;
@@ -96,16 +93,13 @@ public static class EmbedModal
             builder.WithDescription(contents);
 
             return builder.Build();
-        }
-
-        return null;
     }
 
     public static async Task HandleButton(SocketMessageComponent component)
     {
         if (component.Data.CustomId == EditButton.CustomId)
         {
-            if (!CommandHandler.CanRunStaffCmd(component.User, false))
+            if (!CommandHandler.CanRunStaffCmd(component.User, false) && component.Message.Embeds.FirstOrDefault()?.Author?.Name != $"{component.User.Username}#{component.User.Discriminator}")
             {
                 await component.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
                 return;
@@ -117,12 +111,19 @@ public static class EmbedModal
 
     public static async Task HandleModal(SocketModal modal)
     {
-        Embed? embed = await ConstructEmbed(modal);
-        if (embed is null)
-            return;
-        
-        if (modal.Data.CustomId.Contains(Embed(0).CustomId.Replace("|0", string.Empty)))
+        string customId = modal.Data.CustomId;
+        if (customId.Contains('|'))
         {
+            string toRemove = modal.Data.CustomId.Substring(modal.Data.CustomId.IndexOf('|'), 19);
+            customId = modal.Data.CustomId.Replace(toRemove, string.Empty);
+        }
+        
+        if (customId == Embed(0).CustomId.Replace("|0", string.Empty))
+        {
+            Embed? embed = await ConstructEmbed(modal);
+            if (embed is null)
+                return;
+            
             SocketTextChannel? channel = GetChannel(modal);
 
             if (channel is null)
@@ -140,8 +141,12 @@ public static class EmbedModal
 
             await modal.RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Embed Created", "The embed has been created.", Discord.Color.Green), ephemeral: true);
         }
-        else if (modal.Data.CustomId.Contains(EditEmbedModal(0).CustomId.Replace("|0", string.Empty)))
+        else if (customId == EditEmbedModal(0).CustomId.Replace("|0", string.Empty))
         {
+            Embed? embed = await ConstructEmbed(modal);
+            if (embed is null)
+                return;
+            
             if (!ulong.TryParse(modal.Data.CustomId.AsSpan(modal.Data.CustomId.IndexOf('|') + 1, 18), out ulong messageId))
             {
                 await modal.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.UnableToParseId,

@@ -7,4 +7,5 @@ public enum DatabaseType
     Warn,
     Ban,
     BugReport,
+    SelfRole,
 }

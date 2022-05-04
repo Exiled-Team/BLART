@@ -16,8 +16,9 @@ public class Config
     public ulong BugReportId { get; set; }
     public int TriggerLengthLimit { get; set; }
     public ulong ContributorId { get; set; } = 668651927298375690;
+    public string NorthwoodApiKey { get; set; }
 
-    public static readonly Config Default = new Config
+    public static readonly Config Default = new()
     {
         BotToken = string.Empty,
         BotPrefix = "~",
@@ -32,5 +33,6 @@ public class Config
         BugReportId = 0,
         TriggerLengthLimit = 200,
         ContributorId = 0,
+        NorthwoodApiKey = string.Empty,
     };
 }

@@ -57,6 +57,14 @@ public class DatabaseHandler
                     "CREATE TABLE IF NOT EXISTS BugReports(Id INTEGER PRIMARY KEY AUTOINCREMENT, messageId TEXT, threadId TEXT)";
                 cmd.ExecuteNonQuery();
             }
+
+            using (SqliteCommand cmd = conn.CreateCommand())
+            {
+                Log.Info(nameof(Init), "Creating self roles table..");
+                cmd.CommandText =
+                    "CREATE TABLE IF NOT EXISTS SelfRoles(Id INTEGER PRIMARY KEY AUTOINCREMENT, roleId)";
+                cmd.ExecuteNonQuery();
+            }
         }
 
         await BugReporting.LoadDatabaseEntries();
@@ -76,16 +84,21 @@ public class DatabaseHandler
                 DatabaseType.RedRole => "INSERT INTO RedRoles(UserId, Reason, StaffId, Issued) VALUES(@id, @string, @staff, @issued)",
                 DatabaseType.Warn => "INSERT INTO Warns(UserId, Reason, StaffId, Issued) VALUES(@id, @string, @staff, @issued)",
                 DatabaseType.BugReport => "INSERT INTO BugReports(messageId, threadId) VALUES(@id, @string)",
+                DatabaseType.SelfRole => "INSERT INTO SelfRoles(roleId) VALUES(@id)",
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
             
             cmd.Parameters.AddWithValue("@id", id.ToString());
-            cmd.Parameters.AddWithValue("@string", description);
-            
-            if (type is not DatabaseType.Ping)
+
+            if (type is not DatabaseType.SelfRole)
             {
-                cmd.Parameters.AddWithValue("@staff", staffId.ToString());
-                cmd.Parameters.AddWithValue("@issued", DateTime.UtcNow.ToString(CultureInfo.InvariantCulture));
+                cmd.Parameters.AddWithValue("@string", description);
+
+                if (type is not DatabaseType.Ping && type is not DatabaseType.BugReport)
+                {
+                    cmd.Parameters.AddWithValue("@staff", staffId.ToString());
+                    cmd.Parameters.AddWithValue("@issued", DateTime.UtcNow.ToString(CultureInfo.InvariantCulture));
+                }
             }
 
             cmd.ExecuteNonQuery();
@@ -108,6 +121,7 @@ public class DatabaseHandler
                 DatabaseType.Warn => "DELETE FROM Warns WHERE Id=@id",
                 DatabaseType.RedRole => "DELETE FROM RedRoles WHERE Id=@id",
                 DatabaseType.BugReport => "DELETE FROM BugReports WHERE Id=@id",
+                DatabaseType.SelfRole => "DELETE FROM SelfRoles WHERE Id=@id",
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 
@@ -132,6 +146,7 @@ public class DatabaseHandler
                 DatabaseType.Warn => "DELETE FROM Warns WHERE UserId=@id",
                 DatabaseType.Ban => "DELETE FROM Bans WHERE UserId=@id",
                 DatabaseType.BugReport => "DELETE FROM BugReports WHERE messageId=@id OR threadId=@id",
+                DatabaseType.SelfRole => "DELETE FROM SelfRoles WHERE roleId=@id",
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
             
@@ -140,6 +155,30 @@ public class DatabaseHandler
         }
         
         conn.Close();
+    }
+
+    public static List<ulong> GetSelfRoles()
+    {
+        List<ulong> roleIds = new();
+        using (SqliteConnection conn = new(_connectionString))
+        {
+            conn.Open();
+
+            using (SqliteCommand cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT * FROM SelfRoles";
+
+                using (SqliteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                        roleIds.Add(ulong.Parse(reader.GetString(1)));
+                }
+            }
+            
+            conn.Close();
+        }
+
+        return roleIds;
     }
 
     public static List<PunishmentInfo> GetPunishmentInfo(ulong userId, DatabaseType type)
@@ -275,6 +314,7 @@ public class DatabaseHandler
 
         return messageId;
     }
+
     public static string GetPingTrigger(ulong userId)
     {
         string message = string.Empty;
