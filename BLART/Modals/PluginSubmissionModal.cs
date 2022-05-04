@@ -154,10 +154,13 @@ public static class PluginSubmissionModal
         
         RestTextChannel channel = await Bot.Instance.Guild.CreateTextChannelAsync(embed.Title);
         await channel.AddPermissionOverwriteAsync(Bot.Instance.Guild.EveryoneRole, new OverwritePermissions(sendMessages: PermValue.Deny));
-        
+
         if (user is not null)
+        {
             await channel.AddPermissionOverwriteAsync(user, new OverwritePermissions(manageChannel: PermValue.Allow, sendMessages: PermValue.Allow, manageWebhooks: PermValue.Allow));
-        
+            await user.AddRoleAsync(656673780332101648);
+        }
+
         IUserMessage newMessage = await channel.SendMessageAsync(embed: embed);
         RestRole? role = await Bot.Instance.Guild.CreateRoleAsync(embed.Title);
         
