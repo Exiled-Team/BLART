@@ -1,7 +1,9 @@
 namespace BLART.Services;
 
 using System.Globalization;
+using System.Net;
 using BLART.Objects;
+using Discord;
 using Microsoft.Data.Sqlite;
 using Modules;
 
@@ -171,7 +173,18 @@ public class DatabaseHandler
                 using (SqliteDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
-                        roleIds.Add(ulong.Parse(reader.GetString(1)));
+                    {
+                        ulong roleId = ulong.Parse(reader.GetString(1));
+                        IRole role = Bot.Instance.Guild.GetRole(roleId);
+                        if (role is null)
+                        {
+                            RemoveEntry(roleId, DatabaseType.SelfRole);
+                            
+                            continue;
+                        }
+
+                        roleIds.Add(roleId);
+                    }
                 }
             }
             
