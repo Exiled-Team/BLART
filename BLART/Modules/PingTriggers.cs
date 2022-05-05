@@ -11,6 +11,9 @@ public class PingTriggers
 
     public static async Task HandleMessage(SocketMessage msg)
     {
+        if (msg.Author.IsBot)
+            return;
+
         try
         {
             if (_lastPing.ContainsKey(msg.Author) && (DateTime.UtcNow - _lastPing[msg.Author]).TotalMinutes < 2)

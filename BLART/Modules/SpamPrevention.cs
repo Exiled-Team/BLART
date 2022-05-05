@@ -52,7 +52,7 @@ public class SpamPrevention
 
     public static async Task OnMessageUpdated(Cacheable<IMessage, ulong> orig, SocketMessage edited, ISocketMessageChannel channel) => await OnMessageReceived(edited);
 
-    private static bool Check(SocketUser user, bool skipSpam)
+    private static bool Check(SocketUser user, bool skipSpam, bool interaction = false)
     {
         if (user.IsBot || CommandHandler.CanRunStaffCmd(user) || skipSpam)
             return false;
@@ -69,7 +69,7 @@ public class SpamPrevention
         (DateTime time, int count) = SpamTracker[user];
         SpamTracker[user] = new(time, count + 1);
 
-        return SpamTracker[user].Item2 > Program.Config.SpamLimit;
+        return SpamTracker[user].Item2 > (interaction ? Program.Config.SpamLimit / 2 : Program.Config.SpamLimit);
     }
 
     private static bool Check(SocketMessage message)
@@ -139,7 +139,7 @@ public class SpamPrevention
 
     public static async Task HandleInteraction(SocketInteraction message)
     {
-        if (Check(message.User, false))
+        if (Check(message.User, false, true))
         {
             await Logging.SendLogMessage($"User auto-{(RaidProtection.Check(message.User) ? "banned" : "muted")}",
                 $"{message.User.Username} has been auto-moderated for spamming.", Color.Red);

@@ -34,6 +34,7 @@ public class SlashCommandHandler
             SocketInteractionContext context = new(client, interaction);
             await service.ExecuteCommandAsync(context, null);
             await SpamPrevention.HandleInteraction(interaction);
+            Log.Info(nameof(HandleInteraction), $"{interaction.User.Username} used an interaction.");
         }
         catch (Exception e)
         {

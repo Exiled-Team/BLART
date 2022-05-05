@@ -49,7 +49,7 @@ public static class PluginSubmissionModal
         .AddTextInput(Category)
         .Build();
 
-    private static async Task<Embed?> ConstructEmbed(SocketModal modal)
+    private static Task<Embed> ConstructEmbed(SocketModal modal)
     {
         string title = string.Empty;
         string repository = string.Empty;
@@ -74,7 +74,7 @@ public static class PluginSubmissionModal
         builder.WithDescription(description);
         builder.AddField("Plugin Repository", repository);
 
-        return builder.Build();
+        return Task.FromResult(builder.Build());
     }
 
     private static async Task<bool> CanUse(SocketMessageComponent component, bool strict = false)
@@ -186,6 +186,18 @@ public static class PluginSubmissionModal
         {
             if (await CanUse(component))
             {
+                Embed embed = component.Message.Embeds.FirstOrDefault()!;
+                
+                if (Bot.Instance.Guild.Roles.Any(r => r.Name == embed.Title))
+                {
+                    IRole? role = Bot.Instance.Guild.Roles.FirstOrDefault(r => r.Name == embed.Title);
+                    if (role is not null)
+                        await role.DeleteAsync();
+                    await component.RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Plugin Deleted", "The plugin, it's channel, and corrosponding role have been removed.", Color.Green), ephemeral: true);
+                    if (component.Channel.Id != 695423213185794059)
+                        await Bot.Instance.Guild.GetChannel(component.Channel.Id).DeleteAsync();
+                }
+
                 await component.Message.DeleteAsync();
                 await component.RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Submission Cancelled", "The plugin submission has been removed.", Color.Green), ephemeral: true);
             }
