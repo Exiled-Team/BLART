@@ -9,6 +9,8 @@ public partial class RoleCommands
     [SlashCommand("list", "Lists available self-assignable roles.")]
     public async Task ListRoles()
     {
+        await DeferAsync(ephemeral: true);
+        
         List<ulong> roleIds = DatabaseHandler.GetSelfRoles();
         EmbedBuilder builder = new();
         builder.WithTitle("Self-Assignable Roles");
@@ -20,6 +22,6 @@ public partial class RoleCommands
         builder.WithDescription(description);
         builder.WithColor(Color.Green);
 
-        await RespondAsync(embed: builder.Build(), ephemeral: true);
+        await FollowupAsync(embed: builder.Build(), ephemeral: true);
     }
 }

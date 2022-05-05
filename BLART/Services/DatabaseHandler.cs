@@ -162,6 +162,7 @@ public class DatabaseHandler
     public static List<ulong> GetSelfRoles()
     {
         List<ulong> roleIds = new();
+        List<ulong> toRemove = new();
         using (SqliteConnection conn = new(_connectionString))
         {
             conn.Open();
@@ -174,22 +175,32 @@ public class DatabaseHandler
                 {
                     while (reader.Read())
                     {
-                        ulong roleId = ulong.Parse(reader.GetString(1));
-                        IRole role = Bot.Instance.Guild.GetRole(roleId);
-                        if (role is null)
+                        try
                         {
-                            RemoveEntry(roleId, DatabaseType.SelfRole);
-                            
-                            continue;
-                        }
+                            ulong roleId = ulong.Parse(reader.GetString(1));
+                            IRole role = Bot.Instance.Guild.GetRole(roleId);
+                            if (role is null)
+                            {
+                                toRemove.Add(roleId);
 
-                        roleIds.Add(roleId);
+                                continue;
+                            }
+
+                            roleIds.Add(roleId);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Error(nameof(GetSelfRoles), e);
+                        }
                     }
                 }
             }
             
             conn.Close();
         }
+
+        foreach (ulong roleId in toRemove)
+            RemoveEntry(roleId, DatabaseType.SelfRole);
 
         return roleIds;
     }
