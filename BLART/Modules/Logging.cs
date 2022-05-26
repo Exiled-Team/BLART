@@ -2,6 +2,7 @@ namespace BLART.Modules;
 
 using BLART.Services;
 using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 
 public class Logging
@@ -38,4 +39,33 @@ public class Logging
         await SendLogMessage("User Left", $"User {arg2.Username} left the server.", Color.Red);
 
     internal static async Task SendLogMessage(string title, string description, Color color) => await LogChannel.SendMessageAsync(embed: await EmbedBuilderService.CreateBasicEmbed(title, description, color));
+
+    public static Task ModalLogging(SocketModal arg)
+    {
+        if (!File.Exists(Path.Combine(Environment.CurrentDirectory, "Modals.log")))
+            File.Create(Path.Combine(Environment.CurrentDirectory, "Modals.log")).Close();
+
+        _ = File.AppendAllTextAsync(Path.Combine(Environment.CurrentDirectory, "Modal.log"), $"[{DateTime.Now}]: {arg.User.Username} submitted modal {arg.Data.CustomId}");
+        return Task.CompletedTask;
+    }
+
+    public static Task ButtonLogging(SocketMessageComponent arg)
+    {
+        if (!File.Exists(Path.Combine(Environment.CurrentDirectory, "Buttons.log")))
+            File.Create(Path.Combine(Environment.CurrentDirectory, "Buttons.log")).Close();
+
+        _ = File.AppendAllTextAsync(Path.Combine(Environment.CurrentDirectory, "Buttons.log"),
+            $"[{DateTime.Now}]: {arg.User.Username} submitted button {arg.Data.CustomId}");
+        return Task.CompletedTask;
+    }
+
+    public static Task CommandLogging(Optional<CommandInfo> arg1, ICommandContext arg2, IResult arg3)
+    {
+        if (!File.Exists(Path.Combine(Environment.CurrentDirectory, "Commands.log")))
+            File.Create(Path.Combine(Environment.CurrentDirectory, "Commands.log")).Close();
+
+        _ = File.AppendAllTextAsync(Path.Combine(Environment.CurrentDirectory, "Commands.log"),
+            $"[{DateTime.Now}]: {arg2.User.Username} submitted command {arg1.Value.Name}");
+        return Task.CompletedTask;
+    }
 }

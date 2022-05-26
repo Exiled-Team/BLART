@@ -17,6 +17,7 @@ public class Config
     public int TriggerLengthLimit { get; set; }
     public ulong ContributorId { get; set; } = 668651927298375690;
     public string NorthwoodApiKey { get; set; }
+    public ulong StaffChannelId { get; set; }
 
     public static readonly Config Default = new()
     {
@@ -34,5 +35,6 @@ public class Config
         TriggerLengthLimit = 200,
         ContributorId = 0,
         NorthwoodApiKey = string.Empty,
+        StaffChannelId = 0,
     };
 }

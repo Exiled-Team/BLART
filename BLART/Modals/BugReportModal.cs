@@ -84,8 +84,8 @@ public static class BugReportModal
         builder.WithFooter(EmbedBuilderService.Footer);
         builder.WithTitle("Bug Report");
         builder.AddField("Exiled Version", exiledVersion);
-        builder.WithDescription(description);
-        builder.AddField("Errors", errors);
+        builder.AddField("Description", description);
+        builder.WithDescription(errors);
 
         BugReporting.BugReports.TryAdd(modal.User, builder);
 

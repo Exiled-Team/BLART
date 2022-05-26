@@ -93,17 +93,21 @@ public class Bot
         Log.Debug(nameof(Init), "Registering Modal handlers..");
         Client.ModalSubmitted += BugReportModal.HandleModal;
         Client.ModalSubmitted += EmbedModal.HandleModal;
+        Client.ModalSubmitted += ReportUserModal.HandleModal;
         Client.ModalSubmitted += PluginSubmissionModal.HandleModal;
         Client.ButtonExecuted += BugReportModal.HandleButton;
         Client.ButtonExecuted += EmbedModal.HandleButton;
         Client.ButtonExecuted += PluginSubmissionModal.HandleButton;
         Client.ButtonExecuted += SyncRolesModal.HandleButton;
+        Client.ModalSubmitted += Logging.ModalLogging;
+        Client.ButtonExecuted += Logging.ButtonLogging;
+        CommandService.CommandExecuted += Logging.CommandLogging;
         
         Log.Debug(nameof(Init), "Logging in..");
         await Client.LoginAsync(TokenType.Bot, Program.Config.BotToken);
         await Client.StartAsync();
 
-        Task.Run(ServerCountUpdater.DoUpdate);
+        _ = Task.Run(ServerCountUpdater.DoUpdate);
 
         await Task.Delay(-1);
     }
