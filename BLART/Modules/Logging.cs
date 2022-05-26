@@ -3,7 +3,9 @@ namespace BLART.Modules;
 using BLART.Services;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
+using IResult = Discord.Commands.IResult;
 
 public class Logging
 {
@@ -59,13 +61,13 @@ public class Logging
         return Task.CompletedTask;
     }
 
-    public static Task CommandLogging(Optional<CommandInfo> arg1, ICommandContext arg2, IResult arg3)
+    public static Task CommandLogging(ICommandInfo arg1, IInteractionContext arg2, Discord.Interactions.IResult arg3)
     {
         if (!File.Exists(Path.Combine(Environment.CurrentDirectory, "Commands.log")))
             File.Create(Path.Combine(Environment.CurrentDirectory, "Commands.log")).Close();
-
+        
         _ = File.AppendAllTextAsync(Path.Combine(Environment.CurrentDirectory, "Commands.log"),
-            $"[{DateTime.Now}]: {arg2.User.Username} submitted command {arg1.Value.Name}");
+            $"[{DateTime.Now}]: {arg2.User.Username} submitted command {arg1.Name} ()");
         return Task.CompletedTask;
     }
 }

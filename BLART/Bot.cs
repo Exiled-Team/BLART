@@ -19,8 +19,6 @@ public class Bot
     public SocketGuild Guild => guild ??= Client.Guilds.FirstOrDefault(g => g.Id == 656673194693885975)!;
     public string ReplyEmote => "<:yesexiled:813850607294218251>";
     private DiscordSocketClient Client => client ??= new DiscordSocketClient(new DiscordSocketConfig { AlwaysDownloadUsers = true, MessageCacheSize = 10000, });
-    public CommandService CommandService { get; private set; } = null!;
-    public CommandHandler CommandHandler { get; private set; } = null!;
     public InteractionService InteractionService { get; private set; } = null!;
     public SlashCommandHandler SlashCommandHandler { get; private set; } = null!;
 
@@ -48,15 +46,13 @@ public class Bot
         }
 
         Log.Debug(nameof(Init), "Initializing Text Commands..");
-        CommandService = new CommandService();
-        CommandHandler = new CommandHandler(Client, CommandService);
 
         Log.Debug(nameof(Init), "Initializing Slash commands..");
         InteractionService = new InteractionService(Client);
         SlashCommandHandler = new SlashCommandHandler(InteractionService, Client);
 
         Log.Debug(nameof(Init), "Setting up logging..");
-        CommandService.Log += Log.Send;
+        InteractionService.Log += Log.Send;
         Client.Log += Log.Send;
         Client.MessageDeleted += Logging.OnMessageDeleted;
         Client.MessageUpdated += Logging.OnMessageUpdated;
@@ -74,9 +70,6 @@ public class Bot
 
         Log.Debug(nameof(Init), "Setting up raid protection..");
         Client.UserJoined += RaidProtection.OnUserJoined;
-        
-        Log.Debug(nameof(Init), "Installing text commands..");
-        await CommandHandler.InstallCommandsAsync();
 
         Log.Debug(nameof(Init), "Installing slash commands..");
         await SlashCommandHandler.InstallCommandsAsync();
@@ -101,7 +94,7 @@ public class Bot
         Client.ButtonExecuted += SyncRolesModal.HandleButton;
         Client.ModalSubmitted += Logging.ModalLogging;
         Client.ButtonExecuted += Logging.ButtonLogging;
-        CommandService.CommandExecuted += Logging.CommandLogging;
+        InteractionService.InteractionExecuted += Logging.CommandLogging;
         
         Log.Debug(nameof(Init), "Logging in..");
         await Client.LoginAsync(TokenType.Bot, Program.Config.BotToken);
