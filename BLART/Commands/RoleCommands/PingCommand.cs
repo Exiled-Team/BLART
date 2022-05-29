@@ -11,7 +11,7 @@ public partial class RoleCommands
     {
         if (((IGuildUser) Context.User).RoleIds.All(r => r != 656673780332101648))
         {
-            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
+            await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied), ephemeral: true);
             return;
         }
 
@@ -19,6 +19,6 @@ public partial class RoleCommands
             await RespondAsync(role.Mention);
         else
             await RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Role Ping",
-                $"Unable to ping {role.Name}, as it is not a self-assignable role.", Color.Red));
+                $"Unable to ping {role.Name}, as it is not a self-assignable role.", Color.Red), ephemeral: true);
     }
 }
