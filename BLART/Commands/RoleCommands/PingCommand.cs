@@ -16,7 +16,12 @@ public partial class RoleCommands
         }
 
         if (DatabaseHandler.GetSelfRoles().Any(r => r == role.Id))
-            await RespondAsync(role.Mention);
+        {
+            await Context.Channel.SendMessageAsync(role.Mention);
+            await RespondAsync(
+                embed: await EmbedBuilderService.CreateBasicEmbed("Role Ping", "Ping sent.", Color.Green),
+                ephemeral: true);
+        }
         else
             await RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Role Ping",
                 $"Unable to ping {role.Name}, as it is not a self-assignable role.", Color.Red), ephemeral: true);
