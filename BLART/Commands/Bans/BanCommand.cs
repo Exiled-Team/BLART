@@ -22,6 +22,8 @@ public partial class BanCommand : InteractionModuleBase<SocketInteractionContext
                 "<:O5Reverse:741817106718392412>", Color.Gold));
             await Task.Delay(1500);
             await ((IGuildUser) Context.User).BanAsync(0, "trolled");
+
+            return;
         }
 
         if (!CommandHandler.CanRunStaffCmd(Context.User))

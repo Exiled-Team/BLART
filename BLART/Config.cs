@@ -18,6 +18,9 @@ public class Config
     public ulong ContributorId { get; set; } = 668651927298375690;
     public string NorthwoodApiKey { get; set; }
     public ulong StaffChannelId { get; set; }
+    public string SqlUser { get; set; }
+    public string SqlPassword { get; set; }
+    public string SqlDatabase { get; set; }
 
     public static readonly Config Default = new()
     {
@@ -36,5 +39,8 @@ public class Config
         ContributorId = 0,
         NorthwoodApiKey = string.Empty,
         StaffChannelId = 0,
+        SqlUser = string.Empty,
+        SqlPassword = string.Empty,
+        SqlDatabase = string.Empty,
     };
 }
