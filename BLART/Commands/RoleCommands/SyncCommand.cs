@@ -41,7 +41,7 @@ public partial class RoleCommands
             string discordId = GetHashedUserId(Context.User.Id.ToString());
             string hashedUserId = GetHashedUserId(userId);
 
-            if (role is not null && !((IGuildUser) Context.User).RoleIds.Any(r => r == role.Id))
+            if (role is not null && ((IGuildUser) Context.User).RoleIds.All(r => r != role.Id))
                 role = null;
 
             if (role is null)
