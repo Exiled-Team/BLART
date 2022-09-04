@@ -14,10 +14,7 @@ public class Logging
     public static SocketTextChannel LogChannel =>
         logChannel ??= (SocketTextChannel)Bot.Instance.Guild.GetChannel(Program.Config.LogsId);
     
-    public static async Task OnMessageUpdated(
-        Cacheable<IMessage, ulong> before,
-        SocketMessage after,
-        ISocketMessageChannel channel)
+    public static async Task OnMessageUpdated(Cacheable<IMessage, ulong> before, SocketMessage after, ISocketMessageChannel channel)
     {
         if ((await before.GetOrDownloadAsync()).Content != after.Content)
             await SendLogMessage("Message Edited",
@@ -25,11 +22,8 @@ public class Logging
                 Color.Orange);
     }
 
-    public static async Task OnMessageDeleted(
-        Cacheable<IMessage, ulong> message,
-        Cacheable<IMessageChannel, ulong> channel) =>
-        await SendLogMessage("Message Deleted", $"Author: {(await message.GetOrDownloadAsync()).Author.Mention}\nMessage: {(await message.GetOrDownloadAsync()).Content}\nChannel: <#{(await channel.GetOrDownloadAsync()).Id}>",
-            Color.DarkOrange);
+    public static async Task OnMessageDeleted(Cacheable<IMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel) =>
+        await SendLogMessage("Message Deleted", $"Author: {(await message.GetOrDownloadAsync()).Author.Mention}\nMessage: {(await message.GetOrDownloadAsync()).Content}\nChannel: <#{(await channel.GetOrDownloadAsync()).Id}>", Color.DarkOrange);
 
     public static async Task OnUserJoined(SocketGuildUser arg) =>
         await SendLogMessage("User Joined", $"User {arg.Username} has joined the server.", Color.Gold);
