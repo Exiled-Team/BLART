@@ -8,4 +8,5 @@ public enum DatabaseType
     Ban,
     BugReport,
     SelfRole,
+    Tags,
 }
