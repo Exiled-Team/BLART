@@ -17,5 +17,6 @@ public partial class RoleCommands
         }
 
         DatabaseHandler.RemoveEntry(role.Id, DatabaseType.SelfRole);
+        await RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Self-Role Removed", $"The role {role.Name} has been removed as a self-assignable role.", Color.Green), ephemeral: true);
     }
 }
