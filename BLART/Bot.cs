@@ -88,6 +88,7 @@ public class Bot
         Client.ModalSubmitted += EmbedModal.HandleModal;
         Client.ModalSubmitted += ReportUserModal.HandleModal;
         Client.ModalSubmitted += PluginSubmissionModal.HandleModal;
+        Client.ModalSubmitted += TagModal.HandleModal;
         Client.ButtonExecuted += BugReportModal.HandleButton;
         Client.ButtonExecuted += EmbedModal.HandleButton;
         Client.ButtonExecuted += PluginSubmissionModal.HandleButton;

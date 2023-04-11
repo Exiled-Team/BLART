@@ -39,7 +39,7 @@ public static class ErrorHandlingService
             ErrorCodes.FailedToParseColor, "{0} is not a valid HTML HEX color code."
         },
         {
-            ErrorCodes.NoRecordForUserFound, "No database records for {0} were found."
+            ErrorCodes.NoRecordFound, "No database records for {0} were found."
         },
         {
             ErrorCodes.InvalidMessageId, "No message with ID {0} was found."
@@ -49,7 +49,10 @@ public static class ErrorHandlingService
         },
         {
             ErrorCodes.TriggerLengthExceedsLimit, "Ping triggers are limited to {0} characters in length."
-        }
+        },
+        {
+            ErrorCodes.AlreadyExists, "An entry with that identifier already exists."
+        },
     };
 
     private static string GetErrorMessage(ErrorCodes e, string extra = "") => $"Code {(int)e}: {e.ToString().SplitCamelCase()} {extra}".TrimEnd(' ');

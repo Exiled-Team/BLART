@@ -123,7 +123,7 @@ public static class PluginSubmissionModal
 
     private static async Task HandleSelectCategory(SocketModal modal)
     {
-        if (!ulong.TryParse(modal.Data.CustomId.AsSpan(modal.Data.CustomId.IndexOf('|') + 1, 18), out ulong messageId))
+        if (!ulong.TryParse(modal.Data.CustomId.AsSpan(modal.Data.CustomId.IndexOf('|') + 1), out ulong messageId))
         {
             await modal.RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.UnableToParseId, "Unable to parse message ID from embed."), ephemeral: true);
             
@@ -214,18 +214,18 @@ public static class PluginSubmissionModal
     public static async Task HandleModal(SocketModal modal)
     {
         string customId = modal.Data.CustomId;
-        if (customId.Contains('|'))
-        {
-            string toRemove = modal.Data.CustomId.Substring(modal.Data.CustomId.IndexOf('|'), 19);
-            customId = modal.Data.CustomId.Replace(toRemove, string.Empty);
-            Log.Info(nameof(HandleModal), customId);
-        }
+            if (customId.Contains('|'))
+            {
+                string toRemove = modal.Data.CustomId.Substring(modal.Data.CustomId.IndexOf('|'));
+                customId = modal.Data.CustomId.Replace(toRemove, string.Empty);
+                Log.Info(nameof(HandleModal), customId);
+            }
 
-        if (modal.Data.CustomId == EmbedModal.CustomId)
-            await HandleCreateSubmission(modal);
-        else if (customId == EditEmbedModal(0).CustomId.Replace("|0", string.Empty))
-            await HandleEditPlugin(modal);
-        else if (customId == SelectCategory(0).CustomId.Replace("|0", string.Empty))
-            await HandleSelectCategory(modal);
+            if (modal.Data.CustomId == EmbedModal.CustomId)
+                await HandleCreateSubmission(modal);
+            else if (customId == EditEmbedModal(0).CustomId.Replace("|0", string.Empty))
+                await HandleEditPlugin(modal);
+            else if (customId == SelectCategory(0).CustomId.Replace("|0", string.Empty))
+                await HandleSelectCategory(modal);
     }
 }

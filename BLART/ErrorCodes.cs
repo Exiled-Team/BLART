@@ -12,9 +12,10 @@ public enum ErrorCodes
     DatabaseNotFound,
     FailedToParseTitle,
     FailedToParseColor,
-    NoRecordForUserFound,
+    NoRecordFound,
     InvalidMessageId,
     Unspecified,
     TriggerLengthExceedsLimit,
     UnableToParseId,
+    AlreadyExists,
 }

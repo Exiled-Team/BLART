@@ -14,10 +14,7 @@ public class Logging
     public static SocketTextChannel LogChannel =>
         logChannel ??= (SocketTextChannel)Bot.Instance.Guild.GetChannel(Program.Config.LogsId);
     
-    public static async Task OnMessageUpdated(
-        Cacheable<IMessage, ulong> before,
-        SocketMessage after,
-        ISocketMessageChannel channel)
+    public static async Task OnMessageUpdated(Cacheable<IMessage, ulong> before, SocketMessage after, ISocketMessageChannel channel)
     {
         if ((await before.GetOrDownloadAsync()).Content != after.Content)
             await SendLogMessage("Message Edited",
@@ -25,11 +22,8 @@ public class Logging
                 Color.Orange);
     }
 
-    public static async Task OnMessageDeleted(
-        Cacheable<IMessage, ulong> message,
-        Cacheable<IMessageChannel, ulong> channel) =>
-        await SendLogMessage("Message Deleted", $"Author: {(await message.GetOrDownloadAsync()).Author.Mention}\nMessage: {(await message.GetOrDownloadAsync()).Content}\nChannel: <#{(await channel.GetOrDownloadAsync()).Id}>",
-            Color.DarkOrange);
+    public static async Task OnMessageDeleted(Cacheable<IMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel) =>
+        await SendLogMessage("Message Deleted", $"Author: {(await message.GetOrDownloadAsync()).Author.Mention}\nMessage: {(await message.GetOrDownloadAsync()).Content}\nChannel: <#{(await channel.GetOrDownloadAsync()).Id}>", Color.DarkOrange);
 
     public static async Task OnUserJoined(SocketGuildUser arg) =>
         await SendLogMessage("User Joined", $"User {arg.Username} has joined the server.", Color.Gold);
@@ -47,7 +41,7 @@ public class Logging
         if (!File.Exists(Path.Combine(Environment.CurrentDirectory, "Modals.log")))
             File.Create(Path.Combine(Environment.CurrentDirectory, "Modals.log")).Close();
 
-        _ = File.AppendAllTextAsync(Path.Combine(Environment.CurrentDirectory, "Modal.log"), $"[{DateTime.Now}]: {arg.User.Username} submitted modal {arg.Data.CustomId}");
+        _ = File.AppendAllTextAsync(Path.Combine(Environment.CurrentDirectory, "Modal.log"), $"[{DateTime.Now}]: {arg.User.Username} submitted modal {arg.Data.CustomId}\n");
         return Task.CompletedTask;
     }
 
@@ -57,17 +51,25 @@ public class Logging
             File.Create(Path.Combine(Environment.CurrentDirectory, "Buttons.log")).Close();
 
         _ = File.AppendAllTextAsync(Path.Combine(Environment.CurrentDirectory, "Buttons.log"),
-            $"[{DateTime.Now}]: {arg.User.Username} submitted button {arg.Data.CustomId}");
+            $"[{DateTime.Now}]: {arg.User.Username} submitted button {arg.Data.CustomId}\n");
         return Task.CompletedTask;
     }
 
     public static Task CommandLogging(ICommandInfo arg1, IInteractionContext arg2, Discord.Interactions.IResult arg3)
     {
-        if (!File.Exists(Path.Combine(Environment.CurrentDirectory, "Commands.log")))
-            File.Create(Path.Combine(Environment.CurrentDirectory, "Commands.log")).Close();
-        
-        _ = File.AppendAllTextAsync(Path.Combine(Environment.CurrentDirectory, "Commands.log"),
-            $"[{DateTime.Now}]: {arg2.User.Username} submitted command {arg1.Name} ()");
+        try
+        {
+            if (!File.Exists(Path.Combine(Environment.CurrentDirectory, "Commands.log")))
+                File.Create(Path.Combine(Environment.CurrentDirectory, "Commands.log")).Close();
+            _ = File.AppendAllTextAsync(
+                Path.Combine(Environment.CurrentDirectory, "Commands.log"),
+                $"[{DateTime.Now}]: {arg2.User.Username} submitted command {arg1?.Name ?? "Interaction"} ()\n");
+        }
+        catch (Exception e)
+        {
+            Log.Error(nameof(CommandLogging), e);
+        }
+
         return Task.CompletedTask;
     }
 }
