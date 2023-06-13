@@ -18,7 +18,7 @@ public class Bot
 
     public SocketGuild Guild => guild ??= Client.Guilds.FirstOrDefault(g => g.Id == 656673194693885975)!;
     public string ReplyEmote => "<:yesexiled:813850607294218251>";
-    private DiscordSocketClient Client => client ??= new DiscordSocketClient(new DiscordSocketConfig { AlwaysDownloadUsers = true, MessageCacheSize = 10000, });
+    private DiscordSocketClient Client => client ??= new DiscordSocketClient(new DiscordSocketConfig { GatewayIntents = GatewayIntents.All, AlwaysDownloadUsers = true, MessageCacheSize = 10000, });
     public InteractionService InteractionService { get; private set; } = null!;
     public SlashCommandHandler SlashCommandHandler { get; private set; } = null!;
 
