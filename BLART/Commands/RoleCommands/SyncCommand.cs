@@ -82,7 +82,7 @@ public partial class RoleCommands
                     rankId = 3;
                     break;
                 case 1122410155728969841:
-                    rankId = 4;
+                    rankId = 6;
                     break;
             }
 
