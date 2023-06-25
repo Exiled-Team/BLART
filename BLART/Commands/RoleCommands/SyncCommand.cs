@@ -24,10 +24,17 @@ public partial class RoleCommands
     {
         try
         {
-            if (((IGuildUser)Context.User).RoleIds.All(r => r != 656673336402640902 && r != 668651927298375690 && r != 656673780332101648) || BlacklistedDbIds.Contains(Context.User.Id))
+            if (BlacklistedDbIds.Contains(Context.User.Id))
             {
                 await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
                 
+                return;
+            }
+
+            if (((IGuildUser)Context.User).RoleIds.All(r => !Program.Config.CreditRoleIds.Contains(r)))
+            {
+                await RespondAsync(embed: await ErrorHandlingService.GetErrorEmbed(ErrorCodes.PermissionDenied));
+
                 return;
             }
 
@@ -53,6 +60,8 @@ public partial class RoleCommands
                     role = Context.Guild.GetRole(668651927298375690);
                 else if (roles.Any(r => r == 656673780332101648))
                     role = Context.Guild.GetRole(656673780332101648);
+                else if (roles.Any(r => r == 1122410155728969841))
+                    role = Context.Guild.GetRole(1122410155728969841);
                 else
                 {
                     await Context.Channel.SendMessageAsync("Congrats, you found an easter egg. (ping joker).");
@@ -71,6 +80,9 @@ public partial class RoleCommands
                     break;
                 case 656673780332101648:
                     rankId = 3;
+                    break;
+                case 1122410155728969841:
+                    rankId = 4;
                     break;
             }
 

@@ -22,6 +22,8 @@ public class Config
     public string SqlPassword { get; set; }
     public string SqlDatabase { get; set; }
 
+    public List<ulong> CreditRoleIds { get; set; } = new();
+
     public static readonly Config Default = new()
     {
         BotToken = string.Empty,
@@ -42,5 +44,6 @@ public class Config
         SqlUser = string.Empty,
         SqlPassword = string.Empty,
         SqlDatabase = string.Empty,
+        CreditRoleIds = new(),
     };
 }
