@@ -31,8 +31,8 @@ public static class ServerCountUpdater
                 }
 
                 int exiledCount = servers.Count(s => GetServerNameFromInfo(s.Info).Contains("Exiled"));
-                double percent = (double) exiledCount / servers.Length * 100;
-                string text = $"EXILED Domination: {Math.Floor(percent)}%";
+                double percent = Math.Floor((double) exiledCount / servers.Length * 100);
+                string text = percent is 69 ? $"SEXILED Domination: {percent}%" : $"EXILED Domination: {percent}%";
 
                 if (_total != 0 && _total == exiledCount)
                     return;
