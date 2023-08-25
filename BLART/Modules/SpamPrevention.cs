@@ -31,6 +31,7 @@ public class SpamPrevention
     "its.porn",
     "bestgore.com",
     "hentaihaven.com"
+    "bit.ly"
     };
     private static readonly List<string> WhitelistedDiscord = new()
     {
@@ -40,6 +41,7 @@ public class SpamPrevention
     "csharp", // Csharp official
     "p69SGfwxxm", // CedMod by ced777ric
     "3j54zBnbbD", // Scripted-Event by Thunder's
+    "JwAfeSd79u", // MER (MapEditorReborn) by Michal
     };
     public static Task OnMessageReceived(SocketMessage arg) => OnMessageReceived(arg, false);
 
