@@ -10,7 +10,7 @@ public class SpamPrevention
 {
     private static Dictionary<SocketUser, (DateTime, int)> SpamTracker { get; } = new();
     private static readonly Regex Regex = new(@"^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-    private static List<string> BlacklistWebSite = new()
+    private static readonly List<string> BlacklistWebSite = new()
     {
     "xnxx.com",
     "pornhub.com",
@@ -32,7 +32,7 @@ public class SpamPrevention
     "bestgore.com",
     "hentaihaven.com"
     };
-    private static List<string> WhitelistedDiscord = new()
+    private static readonly List<string> WhitelistedDiscord = new()
     {
     "scpsl", // scpsl official
     "PyUkWTg", // Exiled official
