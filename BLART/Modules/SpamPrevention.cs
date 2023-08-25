@@ -139,7 +139,7 @@ public class SpamPrevention
             return true;
         
         if (url.Contains("discord.gg"))
-            if (WhitelistedDiscord.Any(x => url.EndsWith(x)))
+            if (!WhitelistedDiscord.Any(x => url.EndsWith(x)))
                 return true;
         
         return false;
