@@ -38,7 +38,7 @@ public partial class RentCommands : InteractionModuleBase<SocketInteractionConte
         IVoiceChannel channel = Bot.Instance.Guild.GetVoiceChannel(ChannelRenting.RentedChannels[Context.User]);
             
         foreach (IGuildUser user in guildUsers)
-            await channel.AddPermissionOverwriteAsync(user, new OverwritePermissions(connect: PermValue.Allow));
+            await channel.AddPermissionOverwriteAsync(user, new OverwritePermissions(connect: PermValue.Allow, stream: PermValue.Allow));
 
         await RespondAsync("The users mentioned have been permitted to connect to your channel.");
     }

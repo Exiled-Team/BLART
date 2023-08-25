@@ -64,7 +64,7 @@ public class ChannelRenting
 
             await channel.AddPermissionOverwriteAsync(guild.EveryoneRole,
                 new OverwritePermissions(connect: PermValue.Deny));
-            await channel.AddPermissionOverwriteAsync(guildUser, new(connect: PermValue.Allow));
+            await channel.AddPermissionOverwriteAsync(guildUser, new(connect: PermValue.Allow, stream: PermValue.Allow));
             var staffRole = guild.GetRole(Program.Config.DiscStaffId);
             await channel.AddPermissionOverwriteAsync(staffRole, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow));
 

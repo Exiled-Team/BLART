@@ -39,7 +39,7 @@ public partial class RentCommands : InteractionModuleBase<SocketInteractionConte
         IVoiceChannel channel = Bot.Instance.Guild.GetVoiceChannel(ChannelRenting.RentedChannels[Context.User]);
             
         foreach (IGuildUser user in guildUsers)
-            await channel.AddPermissionOverwriteAsync(user, new OverwritePermissions(connect: PermValue.Deny));
+            await channel.AddPermissionOverwriteAsync(user, new OverwritePermissions(connect: PermValue.Deny, stream: PermValue.Deny));
 
         await RespondAsync("The mentioned users have been denied access to your channel.");
     }
