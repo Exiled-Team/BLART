@@ -28,7 +28,13 @@ public class PingTriggers
                 string triggerMessage = DatabaseHandler.GetPingTrigger(mentioned.Id);
                 if (!string.IsNullOrEmpty(triggerMessage) && triggerMessage.Length < Program.Config.TriggerLengthLimit)
                 {
-                    await msg.Channel.SendMessageAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Ping Trigger", $"{msg.Author.Mention} - {triggerMessage}", Color.Gold));
+                    var sentMessage = await msg.Channel.SendMessageAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Ping Trigger", $"{msg.Author.Mention} - {triggerMessage}", Color.Gold));
+
+                    await Task.Delay(TimeSpan.FromSeconds(120)).ContinueWith(async _ =>
+                    {
+                        await sentMessage.DeleteAsync();
+                    });
+
                     _lastPing[msg.Author] = DateTime.UtcNow;
                     break;
                 }
