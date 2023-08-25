@@ -10,7 +10,37 @@ public class SpamPrevention
 {
     private static Dictionary<SocketUser, (DateTime, int)> SpamTracker { get; } = new();
     private static readonly Regex Regex = new(@"^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
+    private static List<string> BlacklistWebSite = new()
+    {
+    "xnxx.com",
+    "pornhub.com",
+    "xvideos.com",
+    "fuq.com",
+    "xhamster.com",
+    "tukif.com",
+    "youporn.com",
+    "mvideoporno.com",
+    "qorno.com",
+    "porn300.com",
+    "ixxx.com",
+    "youporngay.com",
+    "fapvid.com",
+    "pornoplus.com",
+    "vidmo.com",
+    "absoluporn.com",
+    "its.porn",
+    "bestgore.com",
+    "hentaihaven.com"
+    };
+    private static List<string> WhitelistedDiscord = new()
+    {
+    "scpsl", // scpsl official
+    "PyUkWTg", // Exiled official
+    "dtPGCsm", // DiscoHook official
+    "csharp", // Csharp official
+    "p69SGfwxxm", // CedMod by ced777ric
+    "3j54zBnbbD", // Scripted-Event by Thunder's
+    };
     public static Task OnMessageReceived(SocketMessage arg) => OnMessageReceived(arg, false);
 
     public static async Task OnMessageReceived(SocketMessage message, bool skipSpam)
@@ -105,12 +135,11 @@ public class SpamPrevention
     {
         url = url.ToLowerInvariant();
         
-        if (url.Contains("pornhub.com") || url.Contains("xvideos.com") || url.Contains("hentaihaven.com") ||
-            url.Contains("redtube.com") || url.Contains("bestgore.com"))
+        if (BlacklistWebSite.Any(x => BlacklistWebSite.Contains(x)))
             return true;
         
         if (url.Contains("discord.gg"))
-            if (!url.Contains("scpsl") && !url.Contains("PyUkWTg"))
+            if (WhitelistedDiscord.Any(x => url.EndsWith(x)))
                 return true;
         
         return false;
