@@ -23,11 +23,11 @@ public class SpamPrevention
             await Logging.SendLogMessage($"User auto-{(RaidProtection.Check(message.Author) ? "banned" : "muted")}", $"{message.Author.Username} has been auto-moderated for {(spam ? "spamming" : "linking")}.", Color.Red);
             
             if (RaidProtection.Check(message.Author))
-                await ((IGuildUser)message.Author).BanAsync(7, "Raid protection triggered (spamming/linking)");
+                await ((IGuildUser)message.Author).BanAsync(7, "Raid protection triggered (spamming/linking)", new() { AuditLogReason = "Raid protection" });
             else
             {
-                await ((IGuildUser)message.Author).SetTimeOutAsync(TimeSpan.FromHours(2));
-                await message.DeleteAsync();
+                await ((IGuildUser)message.Author).SetTimeOutAsync(TimeSpan.FromHours(2), new() { AuditLogReason = "Raid protection" });
+                await message.DeleteAsync(new() { AuditLogReason = "Raid protection" });
                 int count = 0;
                 foreach (SocketTextChannel channel in Bot.Instance.Guild.TextChannels)
                 {
@@ -35,7 +35,7 @@ public class SpamPrevention
                     {
                         if (msg.Author.Id == message.Author.Id && (DateTime.UtcNow - msg.Timestamp).TotalMinutes < 5)
                         {
-                            await msg.DeleteAsync();
+                            await msg.DeleteAsync(new() { AuditLogReason = "Raid protection" });
                             count++;
 
                             if (count > 20)
@@ -145,10 +145,10 @@ public class SpamPrevention
                 $"{message.User.Username} has been auto-moderated for spamming.", Color.Red);
 
             if (RaidProtection.Check(message.User))
-                await ((IGuildUser) message.User).BanAsync(7, "Raid protection triggered (spamming/linking)");
+                await ((IGuildUser) message.User).BanAsync(7, "Raid protection triggered (spamming/linking)", new() { AuditLogReason = "Raid protection" });
             else
             {
-                await ((IGuildUser) message.User).SetTimeOutAsync(TimeSpan.FromHours(6));
+                await ((IGuildUser) message.User).SetTimeOutAsync(TimeSpan.FromHours(6), new() { AuditLogReason = "Raid protection" });
                 int count = 0;
                 foreach (SocketTextChannel channel in Bot.Instance.Guild.TextChannels)
                 {
@@ -156,7 +156,7 @@ public class SpamPrevention
                     {
                         if (msg.Author.Id == message.User.Id && (DateTime.UtcNow - msg.Timestamp).TotalMinutes < 5)
                         {
-                            await msg.DeleteAsync();
+                            await msg.DeleteAsync(new() { AuditLogReason = "Raid protection" });
                             count++;
 
                             if (count > 20)

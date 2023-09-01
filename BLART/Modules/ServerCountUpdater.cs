@@ -41,8 +41,8 @@ public static class ServerCountUpdater
                 SocketVoiceChannel vc = Bot.Instance.Guild.GetVoiceChannel(Channel1Id);
                 SocketVoiceChannel domination = Bot.Instance.Guild.GetVoiceChannel(Channel2Id);
 
-                await vc.ModifyAsync(x => x.Name = $"Total EXILED Servers: {exiledCount}");
-                await domination.ModifyAsync(x => x.Name = text);
+                await vc.ModifyAsync(x => x.Name = $"Total EXILED Servers: {exiledCount}", new() { AuditLogReason = "Update Exiled server count." });
+                await domination.ModifyAsync(x => x.Name = text, new() { AuditLogReason = "Update Exiled server count." });
             }
             catch (Exception e)
             {

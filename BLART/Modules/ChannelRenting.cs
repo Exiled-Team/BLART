@@ -60,24 +60,25 @@ public class ChannelRenting
                 properties.UserLimit = 10;
                 properties.Name = chanName;
                 properties.CategoryId = Program.Config.ChannelRentCatId;
-            }, RequestOptions.Default);
+            }, new() { AuditLogReason = $"User {userName} rented a voice chat channel." });
 
             await channel.AddPermissionOverwriteAsync(guild.EveryoneRole,
-                new OverwritePermissions(connect: PermValue.Deny));
-            await channel.AddPermissionOverwriteAsync(guildUser, new(connect: PermValue.Allow));
+                new OverwritePermissions(connect: PermValue.Deny), new() { AuditLogReason = "Default voice chat rent permissions." });
+            await channel.AddPermissionOverwriteAsync(guildUser, new(connect: PermValue.Allow), new() { AuditLogReason = "Default voice chat rent permissions." });
             var staffRole = guild.GetRole(Program.Config.DiscStaffId);
-            await channel.AddPermissionOverwriteAsync(staffRole, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow));
+            await channel.AddPermissionOverwriteAsync(staffRole, new OverwritePermissions(connect: PermValue.Allow, manageChannel: PermValue.Allow), new() { AuditLogReason = "Default voice chat rent permissions." });
 
-            await guildUser.ModifyAsync(x => x.ChannelId = channel.Id);
+            await guildUser.ModifyAsync(x => x.ChannelId = channel.Id, new() { AuditLogReason = "Moved voice channel renter to new voice channel." });
             
             RentedChannels.Add(user, channel.Id);
         }
 
         private static async Task HandleLeft(SocketUser user, SocketVoiceState before, SocketVoiceState after)
         {
+            await Task.Delay(1000);
             if (before.VoiceChannel.Users.Count == 0)
             {
-                await before.VoiceChannel.DeleteAsync();
+                await before.VoiceChannel.DeleteAsync(new() { AuditLogReason = "Deleted empty rented voice channel." });
                 RentedChannels.Remove(user);
             }
         }

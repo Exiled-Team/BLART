@@ -153,23 +153,23 @@ public static class PluginSubmissionModal
         
         
         RestTextChannel channel = await Bot.Instance.Guild.CreateTextChannelAsync(embed.Title);
-        await channel.AddPermissionOverwriteAsync(Bot.Instance.Guild.EveryoneRole, new OverwritePermissions(sendMessages: PermValue.Deny));
+        await channel.AddPermissionOverwriteAsync(Bot.Instance.Guild.EveryoneRole, new OverwritePermissions(sendMessages: PermValue.Deny), new() { AuditLogReason = "Default plugin channel permissions." });
 
         if (user is not null)
         {
-            await channel.AddPermissionOverwriteAsync(user, new OverwritePermissions(manageChannel: PermValue.Allow, sendMessages: PermValue.Allow, manageWebhooks: PermValue.Allow));
-            await user.AddRoleAsync(656673780332101648);
+            await channel.AddPermissionOverwriteAsync(user, new OverwritePermissions(manageChannel: PermValue.Allow, sendMessages: PermValue.Allow, manageWebhooks: PermValue.Allow), new() { AuditLogReason = "Default plugin channel permissions." });
+            await user.AddRoleAsync(656673780332101648, new() { AuditLogReason = $"New plugin developer (submission '{embed.Title}' approved)!" });
         }
 
         IUserMessage newMessage = await channel.SendMessageAsync(embed: embed);
-        RestRole? role = await Bot.Instance.Guild.CreateRoleAsync(embed.Title);
+        RestRole? role = await Bot.Instance.Guild.CreateRoleAsync(embed.Title, options: new() { AuditLogReason = $"Created role for new plugin '{embed.Title}'." });
         
         await channel.ModifyAsync(x =>
         {
             x.CategoryId = category.Id;
-        });
+        }, new() { AuditLogReason = "Set category of plugin." });
         await newMessage.ModifyAsync(x => x.Components = new ComponentBuilder().WithButton(EditButton).WithButton(DeleteButton).Build());
-        await message.DeleteAsync();
+        await message.DeleteAsync(new() { AuditLogReason = "Deleted submission of approved plugin." });
         DatabaseHandler.AddEntry(role.Id, string.Empty, DatabaseType.SelfRole);
         
         await modal.FollowupAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Plugin Accepted", "The plugin has been accepted.", Color.Green), ephemeral: true);
@@ -192,13 +192,13 @@ public static class PluginSubmissionModal
                 {
                     IRole? role = Bot.Instance.Guild.Roles.FirstOrDefault(r => r.Name == embed.Title);
                     if (role is not null)
-                        await role.DeleteAsync();
+                        await role.DeleteAsync(new() { AuditLogReason = "Deleted role of associated deleted plugin." });
                     await component.RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Plugin Deleted", "The plugin, it's channel, and corrosponding role have been removed.", Color.Green), ephemeral: true);
                     if (component.Channel.Id != 695423213185794059)
-                        await Bot.Instance.Guild.GetChannel(component.Channel.Id).DeleteAsync();
+                        await Bot.Instance.Guild.GetChannel(component.Channel.Id).DeleteAsync(new() { AuditLogReason = "Deleted channel of associated deleted plugin." });
                 }
 
-                await component.Message.DeleteAsync();
+                await component.Message.DeleteAsync(new() { AuditLogReason = "Canceled plugin submission." });
                 await component.RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Submission Cancelled", "The plugin submission has been removed.", Color.Green), ephemeral: true);
             }
         }

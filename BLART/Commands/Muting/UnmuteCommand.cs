@@ -22,7 +22,7 @@ public partial class MuteCommands
         }
 
         await Logging.SendLogMessage("User unmuted", $"{Context.User.Username} unmuted {user.Username}.", Color.Orange);
-        await ((IGuildUser)user).RemoveTimeOutAsync();
+        await ((IGuildUser)user).RemoveTimeOutAsync(new() { AuditLogReason = $"Unmuted by {Context.User.Username}." });
         await RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Mute Removed",
             $"{user.Username} has had their mute removed.", Color.Green));
     }

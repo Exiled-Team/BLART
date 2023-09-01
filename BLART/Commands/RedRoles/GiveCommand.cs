@@ -30,7 +30,7 @@ public partial class RedRoleCommands : InteractionModuleBase<SocketInteractionCo
             return;
         }
 
-        await target.AddRoleAsync(role);
+        await target.AddRoleAsync(role, new() { AuditLogReason = $"Red role added by {Context.User.Username} with reason: {reason}." });
         DatabaseHandler.AddEntry(target.Id, reason, DatabaseType.RedRole, Context.User.Id);
         await RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Red Role Issued",
             $"{target.Username} has been issued a red role.", Color.Red));
