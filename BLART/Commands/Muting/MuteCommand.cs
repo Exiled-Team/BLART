@@ -40,7 +40,7 @@ public partial class MuteCommands : InteractionModuleBase<SocketInteractionConte
         }
         
         await Logging.SendLogMessage("User muted", $"{Context.User.Username} muted {user.Username} for {span} for {reason}.", Color.Orange);
-        await ((IGuildUser)user).SetTimeOutAsync(span);
+        await ((IGuildUser)user).SetTimeOutAsync(span, new() { AuditLogReason = $"Muted by {user.Username} with reason: {reason}." });
         await RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("User Muted",
             $"{user.Username} has been muted for {span}.\nReason: {reason}", Color.Red));
     }

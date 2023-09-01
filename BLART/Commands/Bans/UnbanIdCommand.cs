@@ -28,7 +28,7 @@ public partial class BanCommand : InteractionModuleBase<SocketInteractionContext
             return;
         }
 
-        await Context.Guild.RemoveBanAsync(userId);
+        await Context.Guild.RemoveBanAsync(userId, new() { AuditLogReason = $"Ban removed by {Context.User.Username}." });
         PunishmentInfo? info = DatabaseHandler.GetInfoById(userId, DatabaseType.Ban);
         DatabaseHandler.RemoveEntry(userId, DatabaseType.Ban);
         await RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("User Unbanned", $"{id} has been unbanned", Color.Green));

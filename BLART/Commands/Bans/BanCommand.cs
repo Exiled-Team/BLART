@@ -43,7 +43,7 @@ public partial class BanCommand : InteractionModuleBase<SocketInteractionContext
             Log.Warn(nameof(Ban), $"Failed to message {user.Username}");
         }
         
-        await ((IGuildUser)user).BanAsync(7, reason);
+        await ((IGuildUser)user).BanAsync(7, reason, new() { AuditLogReason = $"Banned by {Context.User.Username} with reason: {reason}." });
         await RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("User banned", $"{user.Username} has been banned for: {reason}", Color.Orange));
         await Logging.SendLogMessage("User banned",
             $"{Context.User.Username} has banned {user.Username} for {reason}.", Color.Red);

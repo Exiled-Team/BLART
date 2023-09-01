@@ -29,7 +29,7 @@ public partial class RedRoleCommands
             return;
         }
 
-        await target.RemoveRoleAsync(role);
+        await target.RemoveRoleAsync(role, new() { AuditLogReason = $"Red role removed by {Context.User.Username}." });
         DatabaseHandler.RemoveEntry(target.Id, DatabaseType.RedRole);
         await RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Red role removed",
             $"{target.Username} has had their red role removed.", Color.Green));

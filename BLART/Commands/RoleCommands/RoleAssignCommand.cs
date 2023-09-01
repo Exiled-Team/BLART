@@ -14,12 +14,12 @@ public partial class RoleCommands
             IGuildUser user = (IGuildUser)Context.User;
             if (user.RoleIds.Any(r => r == role.Id))
             {
-                await user.RemoveRoleAsync(role);
+                await user.RemoveRoleAsync(role, new() { AuditLogReason = $"Removed self-assignable role." });
                 await RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Role removed", "The selected role has been removed.", Color.Green), ephemeral: true);
             }
             else
             {
-                await user.AddRoleAsync(role);
+                await user.AddRoleAsync(role, new() { AuditLogReason = "Added self-assignable role." });
                 await RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Role Added", "The selected role has been added.", Color.Green), ephemeral: true);
             }
         }

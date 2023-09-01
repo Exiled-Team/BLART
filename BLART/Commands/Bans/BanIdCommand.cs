@@ -28,7 +28,7 @@ public partial class BanCommand : InteractionModuleBase<SocketInteractionContext
         }
 
         reason = ReasonParsing.ParseRules(reason);
-        await Context.Guild.AddBanAsync(userId, 7, reason);
+        await Context.Guild.AddBanAsync(userId, 7, reason, new() { AuditLogReason = $"Banned by {Context.User.Username} with reason: {reason}." });
         await Logging.SendLogMessage("User banned",
             $"{Context.User.Username} has banned {id} for {reason}.", Color.Red);
         DatabaseHandler.AddEntry(userId, reason, DatabaseType.Ban, Context.User.Id);

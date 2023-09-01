@@ -172,8 +172,8 @@ public static class BugReportModal
         if (!await CheckPermissions(component, message))
             return;
         
-        await BugReporting.OpenThreads[message.Id].DeleteAsync();
-        await message.DeleteAsync();
+        await BugReporting.OpenThreads[message.Id].DeleteAsync(new() { AuditLogReason = "Bug report marked as invalid." });
+        await message.DeleteAsync(new() { AuditLogReason = "Bug report marked as invalid." });
         await component.RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Bug Report Invalidation", "The given bug report has been deleted.", Color.Red), ephemeral: true);
     }
 
@@ -197,9 +197,9 @@ public static class BugReportModal
         {
             x.Locked = true;
             x.Archived = true;
-        });
+        }, new() { AuditLogReason = "Bug report marked as duplicate." });
 
-        await message.DeleteAsync();
+        await message.DeleteAsync(new() { AuditLogReason = "Bug report marked as duplicate." });
         await modal.RespondAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Bug Duplicate Marking",
             $"The selected bug report was marked as a duplicate of <#{originalThread.Id}>.", Color.Green), ephemeral: true);
     }
