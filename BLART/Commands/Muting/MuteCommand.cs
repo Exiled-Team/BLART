@@ -35,7 +35,7 @@ public partial class MuteCommands : InteractionModuleBase<SocketInteractionConte
 
         if (user == Context.User)
         {
-            await RespondAsync("No, don't do it, you have to much to live for!");
+            await RespondAsync("No, don't do it, you have too much to live for!");
             return;
         }
         
