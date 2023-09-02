@@ -9,4 +9,6 @@ public enum DatabaseType
     BugReport,
     SelfRole,
     Tags,
+    StickiedMessage,
+    StickiedMessageIDs,
 }

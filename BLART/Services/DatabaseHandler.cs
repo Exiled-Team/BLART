@@ -2,6 +2,7 @@ namespace BLART.Services;
 
 using System.Globalization;
 using System.Net;
+using System.Threading.Channels;
 using BLART.Objects;
 using Discord;
 using Microsoft.Data.Sqlite;
@@ -75,6 +76,22 @@ public class DatabaseHandler
                     "CREATE TABLE IF NOT EXISTS Tags(Id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, tag TEXT)";
                 cmd.ExecuteNonQuery();
             }
+
+            using (SqliteCommand cmd = conn.CreateCommand())
+            {
+                Log.Info(nameof(Init), "Creating sticked messages table..");
+                cmd.CommandText =
+                    "CREATE TABLE IF NOT EXISTS StickiedMessages(Id INTEGER PRIMARY KEY AUTOINCREMENT, channelId TEXT, message TEXT, staffId TEXT)";
+                cmd.ExecuteNonQuery();
+            }
+
+            using (SqliteCommand cmd = conn.CreateCommand())
+            {
+                Log.Info(nameof(Init), "Creating sticked messages ID table..");
+                cmd.CommandText =
+                    "CREATE TABLE IF NOT EXISTS StickiedMessagesIDs(Id INTEGER PRIMARY KEY AUTOINCREMENT, messageId TEXT, channelId TEXT)";
+                cmd.ExecuteNonQuery();
+            }
         }
 
         await BugReporting.LoadDatabaseEntries();
@@ -96,6 +113,8 @@ public class DatabaseHandler
                 DatabaseType.BugReport => "INSERT INTO BugReports(messageId, threadId) VALUES(@id, @string)",
                 DatabaseType.SelfRole => "INSERT INTO SelfRoles(roleId) VALUES(@id)",
                 DatabaseType.Tags => "INSERT INTO Tags(name, tag) VALUES(@name, @tag)",
+                DatabaseType.StickiedMessage => "INSERT INTO StickiedMessages(channelId, message, staffId) VALUES(@id, @string, @staff)",
+                DatabaseType.StickiedMessageIDs => "INSERT INTO StickiedMessagesIDs(messageId, channelId) VALUES(@id, @string)",
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
             
@@ -141,6 +160,8 @@ public class DatabaseHandler
                 DatabaseType.BugReport => "DELETE FROM BugReports WHERE Id=@id",
                 DatabaseType.SelfRole => "DELETE FROM SelfRoles WHERE Id=@id",
                 DatabaseType.Tags => "DELETE FROM Tags WHERE Id=@id",
+                DatabaseType.StickiedMessage => "DELETE FROM StickiedMessages WHERE Id=@id",
+                DatabaseType.StickiedMessageIDs => "DELETE FROM StickiedMessagesIDs WHERE Id=@id",
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 
@@ -166,6 +187,8 @@ public class DatabaseHandler
                 DatabaseType.Ban => "DELETE FROM Bans WHERE UserId=@id",
                 DatabaseType.BugReport => "DELETE FROM BugReports WHERE messageId=@id OR threadId=@id",
                 DatabaseType.SelfRole => "DELETE FROM SelfRoles WHERE roleId=@id",
+                DatabaseType.StickiedMessage => "DELETE FROM StickiedMessages WHERE channelId=@id",
+                DatabaseType.StickiedMessageIDs => "DELETE FROM StickiedMessagesIDs WHERE messageId=@id",
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
             
@@ -437,5 +460,64 @@ public class DatabaseHandler
         }
 
         return tags;
+    }
+
+    public static StickyMessage? GetStickyMessage(ulong channelId)
+    {
+        StickyMessage? stick = null;
+        using (SqliteConnection conn = new(_connectionString))
+        {
+            conn.Open();
+            using (SqliteCommand cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT * FROM StickiedMessages WHERE channelId=@id";
+                cmd.Parameters.AddWithValue("@id", channelId.ToString());
+
+                using (SqliteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string message = reader.GetString(2);
+                        string staffId = reader.GetString(3);
+                        stick = new StickyMessage(channelId, message, ulong.Parse(staffId));
+                        break;
+                    }
+                }
+            }
+
+            conn.Close();
+        }
+
+        return stick;
+    }
+
+    public static string? GetStickyMessageID(ulong channelId)
+    {
+        string? result = null;
+
+        ITextChannel channel = Bot.Instance.Guild.GetTextChannel(channelId);
+        if (channel is null)
+            return result;
+
+        using (SqliteConnection conn = new(_connectionString))
+        {
+            conn.Open();
+            using (SqliteCommand cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT * FROM StickiedMessagesIDs WHERE channelId=@id";
+                cmd.Parameters.AddWithValue("@id", channelId.ToString());
+
+                using (SqliteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        result = reader.GetString(1);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 }
