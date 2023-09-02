@@ -71,6 +71,9 @@ public class Bot
         Log.Debug(nameof(Init), "Setting up raid protection..");
         Client.UserJoined += RaidProtection.OnUserJoined;
 
+        Log.Debug(nameof(Init), "Setting up sticky messages..");
+        Client.MessageReceived += StickiedMessages.OnMessageReceived;
+
         Log.Debug(nameof(Init), "Installing slash commands..");
         await SlashCommandHandler.InstallCommandsAsync();
         Client.Ready += async () =>
