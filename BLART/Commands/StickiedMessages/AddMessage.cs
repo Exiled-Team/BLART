@@ -30,7 +30,7 @@ public partial class StickiedMessages : InteractionModuleBase<SocketInteractionC
         }
 
         DatabaseHandler.AddEntry(channel.Id, message, DatabaseType.StickiedMessage, Context.User.Id);
-        await RespondAsync($"The following sticky message has been added to the {channel.Mention} channel.", ephemeral: true);
+        await RespondAsync($"The following sticky message has been added to the {channel.Mention} channel.", embed: await EmbedBuilderService.CreateStickyMessage(message, Context.User), ephemeral: true);
 
     }
 }
