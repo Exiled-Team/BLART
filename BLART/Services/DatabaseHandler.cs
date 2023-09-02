@@ -491,35 +491,6 @@ public class DatabaseHandler
         return stick;
     }
 
-    public static List<StickyMessage> GetStickyMessages()
-    {
-        List<StickyMessage> result = new();
-
-        using (SqliteConnection conn = new(_connectionString))
-        {
-            conn.Open();
-            using (SqliteCommand cmd = conn.CreateCommand())
-            {
-                cmd.CommandText = "SELECT * FROM StickiedMessages";
-
-                using (SqliteDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        string channelId = reader.GetString(1);
-                        string message = reader.GetString(2);
-                        string staffId = reader.GetString(3);
-                        result.Add(new StickyMessage(ulong.Parse(channelId), message, ulong.Parse(staffId)));
-                    }
-                }
-            }
-
-            conn.Close();
-        }
-
-        return result;
-    }
-
     public static string? GetStickyMessageID(ulong channelId)
     {
         string? result = null;
