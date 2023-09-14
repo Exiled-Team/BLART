@@ -38,6 +38,7 @@ public partial class RentCommands : InteractionModuleBase<SocketInteractionConte
                         await RespondAsync("You cannot deny yourself access to your own VC... is everything okay?", ephemeral: true);
                         return;
                     }
+
                     guildUsers.Add(user);
                 }
             }
