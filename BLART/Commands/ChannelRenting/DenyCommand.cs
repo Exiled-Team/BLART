@@ -32,7 +32,15 @@ public partial class RentCommands : InteractionModuleBase<SocketInteractionConte
             {
                 IGuildUser user = Context.Guild.GetUser(userId);
                 if (user is not null)
+                {
+                    if (user.Id == Context.User.Id)
+                    {
+                        await RespondAsync("You cannot deny yourself access to your own VC... is everything okay?", ephemeral: true);
+                        return;
+                    }
+
                     guildUsers.Add(user);
+                }
             }
         }
 
