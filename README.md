@@ -1,7 +1,6 @@
 # BLART
 
-![Docker Pulls](https://img.shields.io/docker/pulls/xroier/blart?link=https%3A%2F%2Fhub.docker.com%2Fr%2Fxroier%2Fblart)
-
+[![Docker Pulls](https://img.shields.io/docker/pulls/xroier/blart)](https://hub.docker.com/r/xroier/blart/)
 BLART is the official moderating and utils bot for EXILED.
 
 # Running on Docker
