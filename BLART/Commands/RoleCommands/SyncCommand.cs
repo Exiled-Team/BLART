@@ -87,7 +87,7 @@ public partial class RoleCommands
             }
 
             string dbConn =
-                $"Server=127.0.0.1;uid={Program.Config.SqlUser};pwd={Program.Config.SqlPassword};database={Program.Config.SqlDatabase};default command timeout=60";
+                $"Server={Program.Config.SqlServer};uid={Program.Config.SqlUser};pwd={Program.Config.SqlPassword};database={Program.Config.SqlDatabase};default command timeout=60";
             MySqlConnection conn = new(dbConn);
             conn.Open();
             string readText = "SELECT * FROM `credits`";
