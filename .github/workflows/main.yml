@@ -19,6 +19,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build local Docker image
-        run: ls ${{ github.workspace }} #dotnet publish --arch x64 --os linux ${{ github.workspace }}/BLART.sln
-      # - name: Push to Docker Hub
-        # run: docker push xroier/blart:latest
+        run: dotnet publish --arch x64 --os linux ${{ github.env }}/BLART.sln
+      - name: Push to Docker Hub
+        run: docker push xroier/blart:latest
