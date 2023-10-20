@@ -22,4 +22,4 @@ jobs:
       - name: Build local Docker image
         run: dotnet publish --arch x64 --os linux .
       - name: Push to Docker Hub
-        run: docker push xroier/blart:latest
+        run: docker push xroier/blart --all-tags
