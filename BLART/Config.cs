@@ -15,35 +15,48 @@ public class Config
     public ulong RedRoleId { get; set; }
     public ulong BugReportId { get; set; }
     public int TriggerLengthLimit { get; set; }
-    public ulong ContributorId { get; set; } = 668651927298375690;
+    public ulong ContributorId { get; set; }
     public string NorthwoodApiKey { get; set; }
     public ulong StaffChannelId { get; set; }
     public string SqlUser { get; set; }
     public string SqlPassword { get; set; }
     public string SqlDatabase { get; set; }
+    public string SqlServer { get; set; }
 
-    public List<ulong> CreditRoleIds { get; set; } = new();
+    public List<ulong> CreditRoleIds { get; set; }
 
-    public static readonly Config Default = new()
+    public Config()
     {
-        BotToken = string.Empty,
-        BotPrefix = "~",
-        DiscStaffId = 0,
-        SpamLimit = 10,
-        SpamTimeout = 5,
-        ChannelRentId = 0,
-        ChannelRentCatId = 0,
-        LogsId = 0,
-        Debug = false,
-        RedRoleId = 0,
-        BugReportId = 0,
-        TriggerLengthLimit = 200,
-        ContributorId = 0,
-        NorthwoodApiKey = string.Empty,
-        StaffChannelId = 0,
-        SqlUser = string.Empty,
-        SqlPassword = string.Empty,
-        SqlDatabase = string.Empty,
-        CreditRoleIds = new(),
-    };
+        BotToken = Environment.GetEnvironmentVariable("BOT_TOKEN")!;
+        BotPrefix = Environment.GetEnvironmentVariable("BOT_PREFIX")!;
+        DiscStaffId = ulong.Parse(Environment.GetEnvironmentVariable("DISC_STAFF_ID")!);
+        SpamLimit = int.Parse(Environment.GetEnvironmentVariable("SPAM_LIMIT")!);
+        SpamTimeout = int.Parse(Environment.GetEnvironmentVariable("SPAM_TIMEOUT")!);
+        ChannelRentId = ulong.Parse(Environment.GetEnvironmentVariable("CHANNEL_RENT_ID")!);
+        ChannelRentCatId = ulong.Parse(Environment.GetEnvironmentVariable("CHANNEL_RENT_CATEGORY_ID")!);
+        LogsId = ulong.Parse(Environment.GetEnvironmentVariable("LOGS_CHANNEL_ID")!);
+        Debug = bool.Parse(Environment.GetEnvironmentVariable("DEBUG")!);
+        RedRoleId = ulong.Parse(Environment.GetEnvironmentVariable("RED_ROLE_ID")!);
+        BugReportId = ulong.Parse(Environment.GetEnvironmentVariable("BUG_REPORT_CHANNEL_ID")!);
+        TriggerLengthLimit = int.Parse(Environment.GetEnvironmentVariable("LENGHT_LIMIT")!);
+        ContributorId = ulong.Parse(Environment.GetEnvironmentVariable("CONTRIBUTOR_ROLE_ID")!);
+        NorthwoodApiKey = Environment.GetEnvironmentVariable("NW_API_KEY")!;
+        StaffChannelId = ulong.Parse(Environment.GetEnvironmentVariable("STAFF_CHANNEL_ID")!);
+        SqlServer = Environment.GetEnvironmentVariable("DB_SERVER")!;
+        SqlUser = Environment.GetEnvironmentVariable("DB_USER")!;
+        SqlPassword = Environment.GetEnvironmentVariable("DB_PASSWORD")!;
+        SqlDatabase = Environment.GetEnvironmentVariable("DB_DATABASE")!;
+        CreditRoleIds = GetCreditRoleIds().ToList();
+    }
+
+    private static IEnumerable<ulong> GetCreditRoleIds()
+    {
+        var env = Environment.GetEnvironmentVariable("CREDIT_ROLE_IDS")!;
+        var roles = env.Split(',');
+        foreach (var role in roles)
+        {
+            if (ulong.TryParse(role, out ulong returnValue))
+                yield return returnValue;
+        }
+    }
 }

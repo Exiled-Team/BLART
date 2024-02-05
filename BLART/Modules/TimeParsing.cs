@@ -25,24 +25,16 @@ public class TimeParsing
 
     public static TimeSpan FromChar(char c, int duration)
     {
-        switch (c)
+        return c switch
         {
-            case 's':
-                return TimeSpan.FromSeconds(duration);
-            case 'm':
-                return TimeSpan.FromMinutes(duration);
-            case 'h':
-                return TimeSpan.FromHours(duration);
-            case 'd':
-                return TimeSpan.FromDays(duration);
-            case 'w':
-                return TimeSpan.FromDays(duration * 7);
-            case 'M':
-                return TimeSpan.FromDays(duration * 30);
-            case 'y':
-                return TimeSpan.FromDays(duration * 365);
-            default:
-                return TimeSpan.MinValue;
-        }
+            's' => TimeSpan.FromSeconds(duration),
+            'm' => TimeSpan.FromMinutes(duration),
+            'h' => TimeSpan.FromHours(duration),
+            'd' => TimeSpan.FromDays(duration),
+            'w' => TimeSpan.FromDays(duration * 7),
+            'M' => TimeSpan.FromDays(duration * 30),
+            'y' => TimeSpan.FromDays(duration * 365),
+            _ => TimeSpan.MinValue
+        };
     }
 }
