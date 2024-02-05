@@ -7,7 +7,7 @@ using Discord.WebSocket;
 
 public class PingTriggers
 {
-    private static ConcurrentDictionary<SocketUser, DateTime> _lastPing { get; } = new();
+    private static ConcurrentDictionary<SocketUser, DateTime> LastPing { get; } = new();
 
     public static async Task HandleMessage(SocketMessage msg)
     {
@@ -16,20 +16,16 @@ public class PingTriggers
 
         try
         {
-            if (_lastPing.ContainsKey(msg.Author) && (DateTime.UtcNow - _lastPing[msg.Author]).TotalMinutes < 2)
-            {
-                Log.Debug($"{nameof(Log)}.{nameof(HandleMessage)}",
-                    $"Last ping too recent, returning. {_lastPing[msg.Author]} {(DateTime.UtcNow - _lastPing[msg.Author]).TotalMinutes}");
+            if (LastPing.TryGetValue(msg.Author, out DateTime value) && (DateTime.UtcNow - value).TotalMinutes < 2)
                 return;
-            }
-            
+
             foreach (SocketUser mentioned in msg.MentionedUsers)
             {
                 string triggerMessage = DatabaseHandler.GetPingTrigger(mentioned.Id);
                 if (!string.IsNullOrEmpty(triggerMessage) && triggerMessage.Length < Program.Config.TriggerLengthLimit)
                 {
                     await msg.Channel.SendMessageAsync(embed: await EmbedBuilderService.CreateBasicEmbed("Ping Trigger", $"{msg.Author.Mention} - {triggerMessage}", Color.Gold));
-                    _lastPing[msg.Author] = DateTime.UtcNow;
+                    LastPing[msg.Author] = DateTime.UtcNow;
                     break;
                 }
             }

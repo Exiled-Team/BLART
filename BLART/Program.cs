@@ -1,10 +1,26 @@
-﻿namespace BLART;
+﻿using BLART;
+using BLART.Services;
+using Serilog;
 
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using Newtonsoft.Json;
+var builder = WebApplication.CreateBuilder();
 
-public static class Program
+
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureLogging(logging =>
+    {
+        var logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+        logging.ClearProviders().AddSerilog(logger);
+    })
+    .ConfigureServices(services =>
+    {
+        services.AddSingleton<Config>();
+        services.AddHostedService<DbInitService>();
+        services.AddSingleton<BotClientService>();
+        services.AddHostedService<Bot>();
+    })
+    .Build();
+
+/*public static class Program
 {
     private static Bot? _bot;
 
@@ -18,4 +34,4 @@ public static class Program
         _bot = new Bot(args);
         AppDomain.CurrentDomain.ProcessExit += (_, _) => _bot.Destroy();
     }
-}
+}*/
